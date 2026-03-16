@@ -1,3 +1,6 @@
+CREATE DATABASE IF NOT EXISTS todoList;
+USE todoList;
+
 GRANT ALL PRIVILEGES ON test_todoList.* TO 'user'@'%';
 
 FLUSH PRIVILEGES;

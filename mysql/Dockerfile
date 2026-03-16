@@ -1,5 +1,8 @@
-FROM mysql:8.0.0
+FROM mysql:8.4
 
-RUN echo "USE mysql;" > /docker-entrypoint-initdb.d/timezones.sql &&  mysql_tzinfo_to_sql /usr/share/zoneinfo >> /docker-entrypoint-initdb.d/timezones.sql
+# Копируем конфигурацию, если есть
+COPY my.cnf /etc/mysql/conf.d/my.cnf
 
-COPY ./my.cnf /etc/mysql/conf.d/my.cnf
+
+# Явно указываем права
+RUN chown -R mysql:mysql /docker-entrypoint-initdb.d/
