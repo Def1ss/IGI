@@ -54,7 +54,8 @@ def task4_analyze_alice(text: str) -> tuple:
     a) Number of words and list of words with even length
     c) Repeating words
     """
-    raw_words = text.split()
+    
+    raw_words = text.rsplit()
     clean_words = [w.strip(string.punctuation) for w in raw_words]
     clean_words = [w for w in clean_words if w]
     

@@ -9,7 +9,9 @@ import  tasks
 import initialization
 from tabulate import tabulate
 
+
 def log_execution(func):
+    
     """Decorator to log the start and end of function execution."""
     def wrapper(*args, **kwargs):
         print(f"\n[{func.__name__.upper()}] --- Execution started ---")
