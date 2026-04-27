@@ -1,0 +1,15 @@
+total_sentences: 9
+declarative: 9
+interrogative: 0
+imperative: 0
+avg_sentence_len: 20.33
+avg_word_len: 4.03
+smileys: [':)']
+emails: [(' John Doe ', 'john@example.com')]
+replaced_text: Hello! This is a sample text. Do you like it? I hope so :)
+    Here is email: John Doe <john@example.com>. Replace v[1] and v[a].
+    Interesting interesting! Word appears twice. Hello hello world.
+odd_words_count: 19
+odd_words: ['hello', 'a', 'you', 'i', 'email', 'doe', 'example', 'com', 'replace', '1']
+shortest_i_word: i
+duplicate_words: {'hello': 3, 'is': 2, 'a': 2, 'john': 2, 'v_': 2, 'interesting': 2}

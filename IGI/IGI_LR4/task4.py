@@ -1,13 +1,16 @@
 """
-Task 4: Isosceles trapezoid with OOP
+Task 4: Isosceles trapezoid with OOP (with abstract class)
 """
 
 import math
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+from abc import ABC, abstractmethod
 
 
 class ShapeColor:
+    """Class for shape color with property"""
+    
     def __init__(self, color="blue"):
         self._color = color
 
@@ -20,13 +23,31 @@ class ShapeColor:
         self._color = value
 
 
-class IsoscelesTrapezoid:
+class GeometricShape(ABC):
+    """Abstract base class for all geometric shapes"""
+    
+    shape_type = "Geometric Shape"
+    
+    @abstractmethod
+    def area(self):
+        """Calculate area of the shape"""
+        pass
+    
+    @abstractmethod
+    def __str__(self):
+        """String representation of the shape"""
+        pass
+
+
+class IsoscelesTrapezoid(GeometricShape):
+    """Isosceles trapezoid class inheriting from GeometricShape"""
+    
     shape_type = "Isosceles Trapezoid"
 
     def __init__(self, a, b, h, color="blue"):
-        self.a = float(a)
-        self.b = float(b)
-        self.h = float(h)
+        self.a = float(a)   # lower base
+        self.b = float(b)   # upper base
+        self.h = float(h)   # height
         self._color = ShapeColor(color)
 
     @property
@@ -38,27 +59,35 @@ class IsoscelesTrapezoid:
         self._color.color = value
 
     def area(self):
+        """Calculate area of trapezoid"""
         return (self.a + self.b) * self.h / 2
 
     def perimeter(self):
+        """Calculate perimeter of trapezoid"""
         side = math.sqrt(self.h ** 2 + ((self.a - self.b) / 2) ** 2)
         return self.a + self.b + 2 * side
 
     def __str__(self):
-        return f"Trapezoid: a={self.a}, b={self.b}, h={self.h}, color={self.color}, area={self.area():.2f}"
+        """Return formatted string with shape parameters, color and area"""
+        return "{}: a={}, b={}, h={}, color={}, area={:.2f}".format(
+            self.shape_type, self.a, self.b, self.h, self.color, self.area()
+        )
 
     def draw(self, label="", save_path=None):
+        """Draw the trapezoid with given label and save to file"""
         fig, ax = plt.subplots(figsize=(8, 6))
 
-        # Vertices of isosceles trapezoid
-        half_diff = abs(self.a - self.b) / 2
-        if self.a > self.b:
-            x = [-self.a / 2, self.a / 2, self.b / 2, -self.b / 2]
-        else:
-            x = [-self.a / 2, self.a / 2, self.b / 2, -self.b / 2]
+        # Vertices of isosceles trapezoid (centered at origin)
+        x = [-self.a / 2, self.a / 2, self.b / 2, -self.b / 2]
         y = [-self.h / 2, -self.h / 2, self.h / 2, self.h / 2]
 
-        poly = patches.Polygon(list(zip(x, y)), closed=True, facecolor=self.color, edgecolor='black', linewidth=2)
+        poly = patches.Polygon(
+            list(zip(x, y)), 
+            closed=True, 
+            facecolor=self.color, 
+            edgecolor='black', 
+            linewidth=2
+        )
         ax.add_patch(poly)
 
         if label:
@@ -68,37 +97,63 @@ class IsoscelesTrapezoid:
         ax.set_ylim(-self.h / 2 - 1, self.h / 2 + 1)
         ax.set_aspect('equal')
         ax.grid(True, alpha=0.3)
+        ax.set_title(self.shape_type)
 
         if save_path:
             plt.savefig(save_path)
         plt.show()
 
 
-def run():
-    print("\n=== TASK 4: ISOSCELES TRAPEZOID ===")
-
+def validate_positive(value, name):
+    """Validate that value is positive"""
     try:
-        a = float(input("Enter lower base (a): "))
-        b = float(input("Enter upper base (b): "))
-        h = float(input("Enter height (h): "))
-        color = input("Enter color (blue/red/green): ") or "blue"
-        label = input("Enter text label: ")
-
-        if a <= 0 or b <= 0 or h <= 0:
-            print("Error: All values must be positive")
-            return
-
-        trap = IsoscelesTrapezoid(a, b, h, color)
-        print("\n" + str(trap))
-
-        # Change color to demonstrate property
-        print(f"\nChanging color to red...")
-        trap.color = "red"
-        print(f"New color: {trap.color}")
-
-        draw_choice = input("\nDraw shape? (y/n): ")
-        if draw_choice.lower() == 'y':
-            trap.draw(label, "trapezoid.png")
-
+        val = float(value)
+        if val <= 0:
+            print(f"Error: {name} must be positive")
+            return None
+        return val
     except ValueError:
-        print("Invalid input")
+        print(f"Error: Invalid {name} (must be a number)")
+        return None
+
+
+def main():
+    print("\n=== ISOSCELES TRAPEZOID ===")
+    
+    # Input with validation
+    a = validate_positive(input("Enter lower base (a): "), "lower base")
+    if a is None:
+        return
+    
+    b = validate_positive(input("Enter upper base (b): "), "upper base")
+    if b is None:
+        return
+    
+    h = validate_positive(input("Enter height (h): "), "height")
+    if h is None:
+        return
+    
+    color = input("Enter color (blue/red/green/yellow): ") or "blue"
+    label = input("Enter text label: ")
+    
+    # Create trapezoid object
+    trap = IsoscelesTrapezoid(a, b, h, color)
+    
+    # Display shape info using __str__
+    print("\n" + str(trap))
+    
+    # Demonstrate color change
+    if input("\nChange color? (y/n): ").lower() == 'y':
+        new_color = input("Enter new color: ")
+        trap.color = new_color
+        print(f"New color: {trap.color}")
+        print(str(trap))
+    
+    # Draw shape
+    if input("\nDraw shape? (y/n): ").lower() == 'y':
+        trap.draw(label, "trapezoid.png")
+        print("Shape saved to trapezoid.png")
+
+
+if __name__ == "__main__":
+    main()

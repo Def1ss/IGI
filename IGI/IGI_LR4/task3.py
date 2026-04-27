@@ -65,8 +65,8 @@ def run():
                     math_vals.append(math.log(1 + xv))
 
             plt.figure(figsize=(10, 5))
-            plt.plot(x_vals, series_vals, 'b-', label='Series', linewidth=2)
-            plt.plot(x_vals, math_vals, 'r--', label='math.log', linewidth=2)
+            plt.plot(x_vals, series_vals, 'b-', label='Series', linewidth=2) # color = blue , linestyle = "solid"
+            plt.plot(x_vals, math_vals, 'r--', label='math.log', linewidth=2) # color = red , linestyle = "dashed"
             plt.xlabel('x')
             plt.ylabel('ln(1+x)')
             plt.title('Maclaurin Series for ln(1+x)')

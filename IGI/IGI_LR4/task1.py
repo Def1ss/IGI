@@ -4,7 +4,7 @@ Task 1: Library catalog with CSV and Pickle serialization
 
 import csv
 import pickle
-import tabulate
+from tabulate import tabulate
 
 
 class Book:

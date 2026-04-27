@@ -81,9 +81,6 @@ def run():
     print(f"Min MEDV: {df['medv'].min():.2f}")
     print(f"Max MEDV: {df['medv'].max():.2f}")
 
-    # Group by CHAS (Charles River dummy variable)
-    print("\nMEDV by CHAS (Charles River):")
-    print(df.groupby('chas')['medv'].agg(['mean', 'median', 'count']))
 
     # Save results
     df.to_csv("boston_analysis_output.csv", index=False)
