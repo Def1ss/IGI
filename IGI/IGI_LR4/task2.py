@@ -4,6 +4,7 @@ Task 2: Text analysis with regex
 
 import re
 import zipfile
+from collections import Counter
 
 
 def analyze_text(text):
@@ -44,11 +45,8 @@ def analyze_text(text):
     i_words = [w for w in words if w.startswith('i')]
     shortest_i = min(i_words, key=len) if i_words else ""
 
-    # Duplicate words (without Counter)
-    word_counts = {}
-    for w in words:
-        word_counts[w] = word_counts.get(w, 0) + 1
-    dups = {w: c for w, c in word_counts.items() if c > 1}
+    # Duplicate words
+    dups = {w: c for w, c in Counter(words).items() if c > 1}
 
     return {
         "total_sentences": len(sentences),
