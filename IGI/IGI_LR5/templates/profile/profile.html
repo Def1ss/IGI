@@ -1,0 +1,221 @@
+{% extends 'base.html' %}
+
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+    <h1>Личный кабинет</h1>
+    
+    {% if client %}
+        <h2>Добро пожаловать, {{ client.user.get_full_name|default:client.user.username }}!</h2>
+        
+        <table border="1" cellpadding="10" cellspacing="0" width="100%">
+            <tr>
+                <td width="30%"><strong>Имя пользователя:</strong></td>
+                <td>{{ client.user.username }}</td>
+            </tr>
+            <tr>
+                <td><strong>Email:</strong></td>
+                <td>{{ client.user.email }}</td>
+            </tr>
+            <tr>
+                <td><strong>Телефон:</strong></td>
+                <td>{{ client.phone }}</td>
+            </tr>
+            <tr>
+                <td><strong>Дата рождения:</strong></td>
+                <td>{{ client.date_of_birth|date:"d.m.Y" }} (возраст: {{ client.age }})</td>
+            </tr>
+            <tr>
+                <td><strong>Клубная карта:</strong></td>
+                <td>
+                    {% if client.club_card %}
+                        {{ client.club_card.get_card_type_display }} (до {{ client.club_card.valid_to|date:"d.m.Y" }})
+                    {% else %}
+                        Нет активной карты
+                    {% endif %}
+                </td>
+            </tr>
+        </table>
+        
+        <br>
+        <a href="{% url 'profile_edit' %}">Редактировать профиль</a>
+        
+        <h2>Мои групповые занятия</h2>
+        {% if group_enrollments %}
+            <table border="1" cellpadding="10" cellspacing="0" width="100%">
+                <thead bgcolor="#f0f0f0">
+                    <tr>
+                        <th>Группа</th>
+                        <th>Тип занятия</th>
+                        <th>Дата записи</th>
+                        <th>Сумма оплаты</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for enrollment in group_enrollments %}
+                    <tr>
+                        <td>{{ enrollment.group.name }}</td>
+                        <td>{{ enrollment.group.workout_type.name }}</td>
+                        <td>{{ enrollment.enrollment_date|date:"d.m.Y" }}</td>
+                        <td>{{ enrollment.paid_amount }} BYN</td>
+                        <td>{{ enrollment.get_payment_status_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Вы еще не записаны на групповые занятия.</p>
+        {% endif %}
+        
+        <h2>Мои индивидуальные занятия</h2>
+        
+        <h3>Предстоящие занятия</h3>
+        {% if upcoming_individual %}
+            <table border="1" cellpadding="10" cellspacing="0" width="100%">
+                <thead bgcolor="#f0f0f0">
+                    <tr>
+                        <th>Дата и время</th>
+                        <th>Инструктор</th>
+                        <th>Тип занятия</th>
+                        <th>Длительность</th>
+                        <th>Цена</th>
+                        <th>Статус</th>
+                        <th>Действие</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in upcoming_individual %}
+                    <tr>
+                        <td data-utc-date="{{ session.datetime.isoformat }}">{{ session.datetime|date:"d.m.Y H:i" }}</td>
+                        <td>{{ session.instructor.user.get_full_name }}</td>
+                        <td>{{ session.workout_type.name }}</td>
+                        <td>{{ session.duration_minutes }} мин</td>
+                        <td>{{ session.price }} BYN</td>
+                        <td>{{ session.get_status_display }}</td>
+                        <td>
+                            {% if session.status == 'scheduled' %}
+                                <a href="{% url 'cancel_individual_session' session.id %}" onclick="return confirm('Отменить запись?')">Отменить</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Нет предстоящих индивидуальных занятий.</p>
+        {% endif %}
+        
+        <h3>Прошедшие занятия</h3>
+        {% if past_individual %}
+            <table border="1" cellpadding="10" cellspacing="0" width="100%">
+                <thead bgcolor="#f0f0f0">
+                    <tr>
+                        <th>Дата и время</th>
+                        <th>Инструктор</th>
+                        <th>Тип занятия</th>
+                        <th>Длительность</th>
+                        <th>Цена</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in past_individual %}
+                    <tr>
+                        <td data-utc-date="{{ session.datetime.isoformat }}">{{ session.datetime|date:"d.m.Y H:i" }}</td>
+                        <td>{{ session.instructor.user.get_full_name }}</td>
+                        <td>{{ session.workout_type.name }}</td>
+                        <td>{{ session.duration_minutes }} мин</td>
+                        <td>{{ session.price }} BYN</td>
+                        <td>{{ session.get_status_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            
+            {% if can_review %}
+                <br>
+                <a href="{% url 'create_review' %}">Оставить отзыв о занятии</a>
+            {% endif %}
+        {% else %}
+            <p>Нет прошедших индивидуальных занятий.</p>
+        {% endif %}
+        
+    {% elif instructor %}
+        <h2>Добро пожаловать, {{ instructor.user.get_full_name|default:instructor.user.username }}!</h2>
+        
+        <table border="1" cellpadding="10" cellspacing="0" width="100%">
+            <tr>
+                <td width="30%"><strong>Специализация:</strong></td>
+                <td>
+                    {% for spec in instructor.specialization.all %}
+                        {{ spec.name }}{% if not forloop.last %}, {% endif %}
+                    {% endfor %}
+                </td>
+            </tr>
+            <tr>
+                <td><strong>Опыт:</strong></td>
+                <td>{{ instructor.experience_years }} лет</td>
+            </tr>
+            <tr>
+                <td><strong>Телефон:</strong></td>
+                <td>{{ instructor.phone }}</td>
+            </tr>
+        </table>
+        
+        <h2>Расписание на сегодня</h2>
+        
+        <h3>Индивидуальные занятия</h3>
+        {% if today_individual %}
+            <table border="1" cellpadding="10" cellspacing="0" width="100%">
+                <thead bgcolor="#f0f0f0">
+                    <tr>
+                        <th>Время</th>
+                        <th>Клиент</th>
+                        <th>Тип занятия</th>
+                        <th>Статус</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for session in today_individual %}
+                    <tr>
+                        <td data-utc-date="{{ session.datetime.isoformat }}">{{ session.datetime|date:"H:i" }}</td>
+                        <td>{{ session.client.user.get_full_name|default:session.client.user.username }}</td>
+                        <td>{{ session.workout_type.name }}</td>
+                        <td>{{ session.get_status_display }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Нет индивидуальных занятий на сегодня.</p>
+        {% endif %}
+        
+        <h3>Групповые занятия</h3>
+        {% if today_group %}
+            <table border="1" cellpadding="10" cellspacing="0" width="100%">
+                <thead bgcolor="#f0f0f0">
+                    <tr>
+                        <th>Время</th>
+                        <th>Группа</th>
+                        <th>Зал</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for class in today_group %}
+                    <tr>
+                        <td data-utc-date="{{ class.start_time.isoformat }}">{{ class.start_time|date:"H:i" }} - {{ class.end_time|date:"H:i" }}</td>
+                        <td>{{ class.group.name }}</td>
+                        <td>{{ class.hall.name }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Нет групповых занятий на сегодня.</p>
+        {% endif %}
+    {% endif %}
+    
+    <br>
+    <p><small>Время указано в вашем локальном часовом поясе.</small></p>
+{% endblock %}

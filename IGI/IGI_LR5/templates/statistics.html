@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+
+{% block title %}Статистика клуба{% endblock %}
+
+{% block content %}
+    <h1>Статистика фитнес-клуба</h1>
+    
+    {% if user.is_superuser %}
+        <form method="get" style="margin-bottom: 20px;">
+            <label for="days">Период (дней):</label>
+            <select name="days" id="days" onchange="this.form.submit()">
+                <option value="7" {% if days == 7 %}selected{% endif %}>7 дней</option>
+                <option value="30" {% if days == 30 %}selected{% endif %}>30 дней</option>
+                <option value="90" {% if days == 90 %}selected{% endif %}>90 дней</option>
+                <option value="365" {% if days == 365 %}selected{% endif %}>365 дней</option>
+            </select>
+        </form>
+        
+        <h2>Статистика клиентов</h2>
+        <table border="1" cellpadding="10" cellspacing="0" width="100%">
+            <tr>
+                <td width="50%"><strong>Средний возраст клиентов:</strong></td>
+                <td>{{ avg_age }} лет</td>
+            </tr>
+            <tr>
+                <td><strong>Медианный возраст клиентов:</strong></td>
+                <td>{{ median_age }} лет</td>
+            </tr>
+            <tr>
+                <td><strong>Самый популярный тип занятий:</strong></td>
+                <td>{{ most_popular_workout }} ({{ most_popular_count }} клиентов)</td>
+            </tr>
+        </table>
+        
+        <h2>Финансовая статистика</h2>
+        <table border="1" cellpadding="10" cellspacing="0" width="100%">
+            <tr>
+                <td width="50%"><strong>Доход от групповых занятий:</strong></td>
+                <td>{{ group_revenue|floatformat:2 }} BYN</td>
+            </tr>
+            <tr>
+                <td><strong>Доход от индивидуальных занятий:</strong></td>
+                <td>{{ individual_revenue|floatformat:2 }} BYN</td>
+            </tr>
+            <tr>
+                <td><strong>Общий доход:</strong></td>
+                <td><strong>{{ total_revenue|floatformat:2 }} BYN</strong></td>
+            </tr>
+        </table>
+        
+        <h2>Количество занятий по группам</h2>
+        {% if classes_by_group %}
+            <table border="1" cellpadding="10" cellspacing="0" width="100%">
+                <thead bgcolor="#f0f0f0">
+                    <tr>
+                        <th>Группа</th>
+                        <th>Количество занятий</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for group in classes_by_group %}
+                    <tr>
+                        <td>{{ group.group__name }}</td>
+                        <td>{{ group.count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Нет данных о занятиях за выбранный период.</p>
+        {% endif %}
+        
+        <h2>Клиенты и их платежи</h2>
+        {% if clients_with_payments %}
+            <table border="1" cellpadding="10" cellspacing="0" width="100%">
+                <thead bgcolor="#f0f0f0">
+                    <tr>
+                        <th>Клиент</th>
+                        <th>Общая сумма платежей</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for client in clients_with_payments %}
+                    <tr>
+                        <td>{{ client.name }}</td>
+                        <td>{{ client.total_paid|floatformat:2 }} BYN</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Нет данных о клиентах.</p>
+        {% endif %}
+        
+        <h2>Динамика выручки по месяцам</h2>
+        {% if months_data %}
+            <table border="1" cellpadding="10" cellspacing="0" width="100%">
+                <thead bgcolor="#f0f0f0">
+                    <tr>
+                        <th>Месяц</th>
+                        <th>Групповые занятия</th>
+                        <th>Индивидуальные занятия</th>
+                        <th>Итого</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for month in months_data %}
+                    <tr>
+                        <td>{{ month.month }}</td>
+                        <td>{{ month.group|floatformat:2 }} BYN</td>
+                        <td>{{ month.individual|floatformat:2 }} BYN</td>
+                        <td><strong>{{ month.total|floatformat:2 }} BYN</strong></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>Нет данных за выбранный период.</p>
+        {% endif %}
+    {% else %}
+        <p>У вас нет доступа к этой странице.</p>
+    {% endif %}
+{% endblock %}
