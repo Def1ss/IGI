@@ -88,5 +88,7 @@ def run():
 
     with zipfile.ZipFile("result.zip", "w") as z:
         z.write("analysis_result.txt")
+    
+    zipfile.ZipInfo
 
     print("\nSaved to analysis_result.txt and zipped to result.zip")

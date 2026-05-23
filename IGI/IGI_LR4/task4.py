@@ -155,3 +155,5 @@ def main():
         print("Shape saved to trapezoid.png")
 
 
+if __name__ == "__main__":
+    main()
