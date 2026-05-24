@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}FAQ — ФОРСАЖ{% endblock %}
+{% block content %}
+<h1>Частые вопросы</h1>
+{% for item in faq_items %}
+  <details class="card">
+    <summary><strong>{{ item.question }}</strong></summary>
+    <p>{{ item.answer|linebreaks }}</p>
+  </details>
+{% empty %}
+  <p class="muted">Вопросы пока не добавлены.</p>
+{% endfor %}
+{% endblock %}

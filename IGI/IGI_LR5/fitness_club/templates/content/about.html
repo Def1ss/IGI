@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}О нас — ФОРСАЖ{% endblock %}
+{% block content %}
+<h1>История компании</h1>
+{% for event in history_events %}
+  <article class="card">
+    <h2>{{ event.year }}</h2>
+    <p>{{ event.event }}</p>
+  </article>
+{% empty %}
+  <p class="muted">История пока не заполнена.</p>
+{% endfor %}
+{% endblock %}

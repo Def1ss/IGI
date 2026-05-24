@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% block title %}Расписание — ФОРСАЖ{% endblock %}
+{% block content %}
+<h1>Расписание групповых занятий</h1>
+
+<form method="get" class="card">
+  <div class="grid-2">
+    <p><label>Дата</label><input type="date" name="date" value="{{ filters.date }}"></p>
+    <p><label>Группа</label>
+      <select name="group">
+        <option value="">Все</option>
+        {% for g in groups %}
+        <option value="{{ g.id }}" {% if filters.group == g.id|stringformat:"s" %}selected{% endif %}>{{ g.name }}</option>
+        {% endfor %}
+      </select>
+    </p>
+    <p><label>Зал</label>
+      <select name="hall">
+        <option value="">Все</option>
+        {% for hall_id, hall_name in halls %}
+        <option value="{{ hall_id }}" {% if filters.hall == hall_id|stringformat:"s" %}selected{% endif %}>{{ hall_name }}</option>
+        {% endfor %}
+      </select>
+    </p>
+    <p><label>Поиск</label><input type="search" name="q" value="{{ filters.q }}"></p>
+  </div>
+  <button type="submit" class="btn">Фильтровать</button>
+</form>
+
+{% if user.is_superuser %}
+<section class="card">
+  <h2>Массовое повышение цен (админ)</h2>
+  <form method="post" action="{% url 'workouts:bulk_price' %}">
+    {% csrf_token %}
+    <p>
+      <label>Вид тренировки</label>
+      <select name="workout_type_id" required>
+        {% for wt in workout_types %}
+        <option value="{{ wt.id }}">{{ wt.name }}</option>
+        {% endfor %}
+      </select>
+    </p>
+    <p><label>Процент</label><input type="number" name="percent" value="10" min="1" max="100"></p>
+    <button type="submit" class="btn btn-danger">Повысить цены</button>
+  </form>
+</section>
+{% endif %}
+
+<table>
+  <thead>
+    <tr>
+      <th>Группа</th>
+      <th>Тип</th>
+      <th>Зал</th>
+      <th>Начало</th>
+      <th>Окончание</th>
+      <th>Цикл (BYN)</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for cls in classes %}
+    <tr>
+      <td>{{ cls.group.name }}</td>
+      <td>{{ cls.group.workout_type.name }}</td>
+      <td>{{ cls.hall.name }}</td>
+      <td>{{ cls.start_time|date:"d.m.Y H:i" }}</td>
+      <td>{{ cls.end_time|date:"H:i" }}</td>
+      <td>{{ cls.group.workout_type.price_per_cycle }}</td>
+      <td>
+        {% if client and cls.group_id not in enrolled_group_ids %}
+        <form method="post" action="{% url 'workouts:enroll_group' cls.group_id %}" class="inline-form">
+          {% csrf_token %}
+          <input type="text" name="promo_code" placeholder="Промокод">
+          <button type="submit" class="btn">Записаться</button>
+        </form>
+        {% elif client and cls.group_id in enrolled_group_ids %}
+          <span class="badge">Записан</span>
+        {% elif not user.is_authenticated %}
+          <a href="{% url 'users:login' %}">Войти</a>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="7" class="muted">Занятий не найдено.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

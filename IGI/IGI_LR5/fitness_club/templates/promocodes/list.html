@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Промокоды — ФОРСАЖ{% endblock %}
+{% block content %}
+<h1>Активные промокоды</h1>
+
+<section class="card">
+  <h2>Проверить промокод</h2>
+  <form method="post" action="{% url 'promocodes:apply' %}">
+    {% csrf_token %}
+    <p>
+      <label>Код</label>
+      <input type="text" name="code" required>
+    </p>
+    <p>
+      <label>Категория услуги</label>
+      <select name="service_type">
+        <option value="all">Все</option>
+        <option value="group">Групповые</option>
+        <option value="individual">Индивидуальные</option>
+        <option value="club_card">Клубная карта</option>
+      </select>
+    </p>
+    <button type="submit" class="btn">Применить</button>
+  </form>
+</section>
+
+{% for promo in promos %}
+<article class="card">
+  <h2><code>{{ promo.code }}</code> <span class="badge">−{{ promo.discount_percent }}%</span></h2>
+  <p class="muted">{{ promo.get_applicable_to_display }} · до {{ promo.valid_to|date:"d.m.Y" }}</p>
+</article>
+{% empty %}
+<p class="muted">Активных промокодов нет.</p>
+{% endfor %}
+{% endblock %}

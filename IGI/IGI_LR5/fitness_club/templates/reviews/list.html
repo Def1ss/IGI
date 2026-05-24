@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Отзывы — ФОРСАЖ{% endblock %}
+{% block content %}
+<h1>Отзывы клиентов</h1>
+
+{% if form %}
+<section class="card">
+  <h2>Оставить отзыв</h2>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Отправить</button>
+  </form>
+</section>
+{% elif user.is_authenticated and client %}
+<p class="muted">Отзыв доступен после оплаченного группового или завершённого индивидуального занятия.</p>
+{% elif not user.is_authenticated %}
+<p class="muted"><a href="{% url 'users:login' %}">Войдите</a>, чтобы оставить отзыв.</p>
+{% endif %}
+
+{% for review in reviews %}
+<article class="card">
+  <p class="rating">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</p>
+  <p>{{ review.text }}</p>
+  <p class="muted">{{ review.client.user.get_full_name|default:review.client.user.username }} · {{ review.created_at|date:"d.m.Y" }}</p>
+</article>
+{% empty %}
+<p class="muted">Отзывов пока нет.</p>
+{% endfor %}
+{% endblock %}

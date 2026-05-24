@@ -1,0 +1,83 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}ФОРСАЖ — Фитнес-клуб{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+  <header class="site-header">
+    <a href="{% url 'content:home' %}" class="logo">ФОРСАЖ</a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="{% url 'content:home' %}">Главная</a></li>
+        <li><a href="{% url 'content:about' %}">О нас</a></li>
+        <li><a href="{% url 'content:news_list' %}">Новости</a></li>
+        <li><a href="{% url 'workouts:schedule' %}">Расписание</a></li>
+        <li><a href="{% url 'promocodes:list' %}">Промокоды</a></li>
+        <li><a href="{% url 'reviews:list' %}">Отзывы</a></li>
+        <li><a href="{% url 'content:faq' %}">FAQ</a></li>
+        <li><a href="{% url 'content:contacts' %}">Контакты</a></li>
+        <li><a href="{% url 'content:vacancies' %}">Вакансии</a></li>
+        {% if user.is_authenticated %}
+          <li><a href="{% url 'enrollments:session_list' %}">Индив. занятия</a></li>
+          <li><a href="{% url 'users:profile' %}">Профиль</a></li>
+          {% if user.is_superuser %}
+            <li><a href="{% url 'analytics:statistics' %}">Статистика</a></li>
+          {% endif %}
+        {% else %}
+          <li><a href="{% url 'users:login' %}">Вход</a></li>
+        {% endif %}
+      </ul>
+    </nav>
+    <div class="header-meta">
+      <span id="clock">{{ server_now|date:"d.m.Y H:i:s" }}</span>
+      <form class="currency-form" method="post" action="{% url 'users:set_currency' %}">
+        {% csrf_token %}
+        <select name="currency" onchange="this.form.submit()">
+          <option value="BYN" {% if selected_currency == 'BYN' %}selected{% endif %}>BYN</option>
+          <option value="USD" {% if selected_currency == 'USD' %}selected{% endif %}>USD</option>
+          <option value="EUR" {% if selected_currency == 'EUR' %}selected{% endif %}>EUR</option>
+        </select>
+      </form>
+      {% if user.is_authenticated %}
+        <span>{{ user.get_full_name|default:user.username }}</span>
+        <form method="post" action="{% url 'users:logout' %}" class="inline-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-secondary">Выход</button>
+        </form>
+      {% endif %}
+    </div>
+  </header>
+
+  <main>
+    {% if messages %}
+      <ul class="messages">
+        {% for message in messages %}
+          <li class="{{ message.tags }}">{{ message }}</li>
+        {% endfor %}
+      </ul>
+    {% endif %}
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+  <p>© Фитнес-клуб «ФОРСАЖ» · <a href="{% url 'content:privacy' %}">Политика конфиденциальности</a></p>
+  </footer>
+  <script>
+    (function () {
+      const el = document.getElementById('clock');
+      if (!el) return;
+      function tick() {
+        const d = new Date();
+        el.textContent = d.toLocaleString('ru-RU');
+      }
+      tick();
+      setInterval(tick, 1000);
+    })();
+  </script>
+  {% block extra_js %}{% endblock %}
+</body>
+</html>

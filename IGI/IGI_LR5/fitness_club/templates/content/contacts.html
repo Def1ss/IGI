@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block title %}Контакты — ФОРСАЖ{% endblock %}
+{% block content %}
+<h1>Наша команда</h1>
+<div class="grid-2">
+{% for person in team_members %}
+  <article class="card">
+    <h2>{{ person.full_name }}</h2>
+    <p class="muted">{{ person.role }}</p>
+    <p>Тел.: {{ person.phone }}</p>
+    <p>Email: <a href="mailto:{{ person.email }}">{{ person.email }}</a></p>
+  </article>
+{% empty %}
+  <p class="muted">Контакты не заполнены.</p>
+{% endfor %}
+</div>
+{% endblock %}

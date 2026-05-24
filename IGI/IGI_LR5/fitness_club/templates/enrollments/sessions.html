@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Индивидуальные занятия — ФОРСАЖ{% endblock %}
+{% block content %}
+<h1>Индивидуальные тренировки</h1>
+
+{% if book_form %}
+<section class="card">
+  <h2>Записаться на тренировку</h2>
+  <form method="post">
+    {% csrf_token %}
+    <input type="hidden" name="book_session" value="1">
+    {{ book_form.as_p }}
+    <button type="submit" class="btn">Забронировать</button>
+  </form>
+</section>
+{% endif %}
+
+<table>
+  <thead>
+    <tr>
+      <th>Клиент</th>
+      <th>Тренер</th>
+      <th>Тип</th>
+      <th>Дата</th>
+      <th>Длит.</th>
+      <th>Цена</th>
+      <th>Статус</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+  {% for s in sessions %}
+    <tr>
+      <td>{{ s.client.user.get_full_name|default:s.client.user.username }}</td>
+      <td>{{ s.instructor.user.get_full_name|default:s.instructor.user.username }}</td>
+      <td>{{ s.workout_type.name }}</td>
+      <td>{{ s.datetime|date:"d.m.Y H:i" }}</td>
+      <td>{{ s.duration_minutes }} мин</td>
+      <td>{{ s.price }} BYN</td>
+      <td>{{ s.get_status_display }}</td>
+      <td>
+        {% if client and s.client_id == client.id and s.status == 'scheduled' %}
+        <form method="post" action="{% url 'enrollments:cancel_session' s.id %}" class="inline-form">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-danger">Отменить</button>
+        </form>
+        {% endif %}
+        {% if instructor and s.instructor_id == instructor.id and s.status == 'scheduled' %}
+        <form method="post" action="{% url 'enrollments:complete_session' s.id %}" class="inline-form">
+          {% csrf_token %}
+          <button type="submit" class="btn">Проведено</button>
+        </form>
+        {% endif %}
+      </td>
+    </tr>
+  {% empty %}
+    <tr><td colspan="8" class="muted">Записей нет.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+{% endblock %}

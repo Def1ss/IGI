@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Главная — ФОРСАЖ{% endblock %}
+{% block content %}
+<section class="hero">
+  <h1>Добро пожаловать в «ФОРСАЖ»</h1>
+  <p>Современный фитнес-клуб: групповые и индивидуальные тренировки, клубные карты и профессиональные тренеры.</p>
+  <p><a class="btn" href="{% url 'workouts:schedule' %}">Смотреть расписание</a></p>
+</section>
+
+<blockquote class="quote-block">
+  «{{ motivation.quote }}»
+  <footer class="muted">— {{ motivation.author }}</footer>
+</blockquote>
+
+{% if latest_news %}
+<section class="card">
+  <h2>Последняя новость</h2>
+  <h3>{{ latest_news.title }}</h3>
+  <p class="muted">{{ latest_news.published_date|date:"d.m.Y H:i" }}</p>
+  <p>{{ latest_news.summary }}</p>
+  <a href="{% url 'content:news_detail' latest_news.slug %}">Читать полностью →</a>
+</section>
+{% endif %}
+{% endblock %}

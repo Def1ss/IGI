@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация — ФОРСАЖ{% endblock %}
+{% block content %}
+<section class="card" style="max-width:520px;">
+  <h1>Регистрация клиента</h1>
+  <p class="muted">Только для лиц старше 18 лет. Телефон: +375 (29) XXX-XX-XX</p>
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn">Создать аккаунт</button>
+  </form>
+  <p class="muted">Уже есть аккаунт? <a href="{% url 'users:login' %}">Войти</a></p>
+</section>
+{% endblock %}

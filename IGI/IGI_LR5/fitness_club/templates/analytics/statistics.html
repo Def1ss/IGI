@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Статистика — ФОРСАЖ{% endblock %}
+{% block content %}
+<h1>Статистика клуба</h1>
+
+<div class="grid-2">
+  <section class="card">
+    <h2>Возраст клиентов</h2>
+    <p>Средний: <strong>{{ avg_age }}</strong> лет</p>
+    <p>Медиана: <strong>{{ median_age }}</strong> лет</p>
+  </section>
+  <section class="card">
+    <h2>Популярность видов тренировок</h2>
+    <ol>
+      {% for name, count in popularity_list %}
+      <li>{{ name }} — {{ count }} клиент(ов)</li>
+      {% empty %}
+      <li class="muted">Нет данных</li>
+      {% endfor %}
+    </ol>
+  </section>
+</div>
+
+<section class="card">
+  <h2>Доходность по видам тренировок</h2>
+  <table>
+    <thead><tr><th>Вид</th><th>Доход (BYN)</th></tr></thead>
+    <tbody>
+    {% for name, profit in profitability_list %}
+      <tr><td>{{ name }}</td><td>{{ profit }}</td></tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Оплаты клиентов (по алфавиту)</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>Клиент</th>
+        <th>Телефон</th>
+        <th>Группы</th>
+        <th>Индив.</th>
+        <th>Абонемент</th>
+        <th>Итого</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% for row in client_payments %}
+      <tr>
+        <td>{{ row.full_name }}</td>
+        <td>{{ row.phone }}</td>
+        <td>{{ row.group_paid }}</td>
+        <td>{{ row.individual_paid }}</td>
+        <td>{{ row.subscription_paid }}</td>
+        <td><strong>{{ row.total_paid }}</strong></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+</section>
+
+<section class="card">
+  <h2>Занятий по группам (JSON для графиков)</h2>
+  <pre class="muted">{{ chart_groups_data_json }}</pre>
+</section>
+{% endblock %}
