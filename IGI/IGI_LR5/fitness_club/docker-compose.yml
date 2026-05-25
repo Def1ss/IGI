@@ -1,17 +1,17 @@
-version: '3.8'
-
+# docker-compose.yml
 services:
   db:
     image: postgres:15-alpine
-    container_name: fitness_db_container
+    container_name: fitness_db
+    restart: always
     volumes:
-      - postgres_data:/var/lib/postgresql/data/
+      - postgres_data:/var/lib/postgresql/data
     environment:
-      - POSTGRES_DB=fitness_db
-      - POSTGRES_USER=fitness_admin
-      - POSTGRES_PASSWORD=secure_strength_pass
+      POSTGRES_DB: fitness_db
+      POSTGRES_USER: fitness_admin
+      POSTGRES_PASSWORD: secure_strength_pass
     ports:
-      - "5432:5432"
+      - "5433:5432"  # Измените внешний порт на 5433
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U fitness_admin -d fitness_db"]
       interval: 10s
@@ -20,29 +20,35 @@ services:
 
   web:
     build: .
-    container_name: fitness_web_container
+    container_name: fitness_web
+    restart: always
     command: >
       sh -c "python manage.py migrate &&
              python manage.py collectstatic --noinput &&
-             python manage.py load_fitness_fixtures || true &&
-             gunicorn fitness_club.wsgi:application --bind 0.0.0.0:8000 --workers 2"
+             gunicorn fitness_club.wsgi:application --bind 0.0.0.0:8000 --workers 3"
     volumes:
       - .:/app
+      - static_volume:/app/staticfiles
+      - media_volume:/app/media
+      - logs_volume:/app/logs
     ports:
       - "8000:8000"
     environment:
       - DJANGO_SETTINGS_MODULE=fitness_club.settings.prod
-      - SECRET_KEY=local_development_secret_key_112233
+      - SECRET_KEY=${SECRET_KEY:-django-insecure-production-key-change-me}
       - DEBUG=False
       - LOG_LEVEL=INFO
       - DB_NAME=fitness_db
       - DB_USER=fitness_admin
       - DB_PASSWORD=secure_strength_pass
       - DB_HOST=db
-      - DB_PORT=5432
+      - DB_PORT=5432  # Внутренний порт контейнера остается 5432
     depends_on:
       db:
         condition: service_healthy
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
+  logs_volume:

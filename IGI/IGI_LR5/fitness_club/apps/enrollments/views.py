@@ -6,6 +6,9 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods, require_POST
 
+# В начале файла apps/enrollments/views.py замените импорты:
+from apps.promocodes.services import apply_discount, record_promo_usage, validate_promo_code
+from apps.promocodes.services import sessions_overlap  
 from apps.enrollments.forms import BookSessionForm
 from apps.enrollments.models import IndividualSession
 from apps.services import apply_discount, record_promo_usage, sessions_overlap, validate_promo_code

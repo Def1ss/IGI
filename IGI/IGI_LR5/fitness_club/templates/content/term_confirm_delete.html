@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% block title %}Удалить термин — ФОРСАЖ{% endblock %}
+{% block content %}
+<fieldset>
+  <legend><b>Удалить термин?</b></legend>
+  <p>Термин: <b>{{ term.term }}</b></p>
+  <p>{{ term.definition }}</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit">Да, удалить</button>
+  </form>
+  <form method="get" action="{% url 'content:term_list' %}"><button type="submit">Отмена</button></form>
+</fieldset>
+{% endblock %}

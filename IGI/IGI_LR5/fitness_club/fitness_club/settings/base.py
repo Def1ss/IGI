@@ -1,3 +1,4 @@
+# fitness_club/settings/base.py
 import os
 from pathlib import Path
 
@@ -60,6 +61,14 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'fitness_club.wsgi.application'
 
+# Database - будет переопределен в dev/prod
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
+
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -69,7 +78,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-# Localization setup
 LANGUAGE_CODE = 'ru-RU'
 TIME_ZONE = 'Europe/Minsk'
 USE_I18N = True
@@ -88,8 +96,10 @@ LOGIN_URL = '/profile/login/'
 LOGIN_REDIRECT_URL = '/profile/'
 LOGOUT_REDIRECT_URL = '/'
 
-# Logging Setup
-LOG_LEVEL = os.environ.get('LOG_LEVEL', 'INFO').upper()
+# Создаем директорию для логов если её нет
+LOGS_DIR = os.path.join(BASE_DIR, 'logs')
+if not os.path.exists(LOGS_DIR):
+    os.makedirs(LOGS_DIR, exist_ok=True)
 
 LOGGING = {
     'version': 1,
@@ -112,7 +122,7 @@ LOGGING = {
         'file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'logs', 'fitness_club.log') if os.path.exists(os.path.join(BASE_DIR, 'logs')) else 'fitness_club.log',
+            'filename': os.path.join(LOGS_DIR, 'fitness_club.log'),
             'formatter': 'verbose',
         }
     },
@@ -124,7 +134,7 @@ LOGGING = {
         },
         'fitness_app': {
             'handlers': ['console'],
-            'level': LOG_LEVEL,
+            'level': os.environ.get('LOG_LEVEL', 'INFO').upper(),
             'propagate': False,
         }
     }

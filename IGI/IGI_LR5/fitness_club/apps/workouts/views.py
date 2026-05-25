@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from django.views.decorators.http import require_POST
 from django.views.generic import ListView
 
+from apps.promocodes.services import apply_discount, record_promo_usage, validate_promo_code
 from apps.enrollments.models import GroupEnrollment
 from apps.services import apply_discount, record_promo_usage, sessions_overlap, validate_promo_code
 from apps.users.models import Client

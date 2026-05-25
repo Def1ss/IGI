@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block title %}{{ term.term }} — Словарь{% endblock %}
+{% block content %}
+<fieldset>
+  <legend><b>{{ term.term }}</b></legend>
+  <p><i>Категория:</i> {{ term.category }}</p>
+  <p>{{ term.definition|linebreaks }}</p>
+  <p><small>Добавлено: {{ term.added_date|date:"d.m.Y" }}</small></p>
+</fieldset>
+<br>
+<form method="get" action="{% url 'content:term_list' %}"><button type="submit">← К словарю</button></form>
+{% endblock %}

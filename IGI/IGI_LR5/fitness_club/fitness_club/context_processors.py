@@ -1,5 +1,7 @@
+# fitness_club/context_processors.py
 from django.utils import timezone
 
+# Исправьте импорт - должно быть apps.apps_utils, не apps_utils
 from apps.apps_utils import get_live_exchange_rates, get_random_exercise_quote
 
 

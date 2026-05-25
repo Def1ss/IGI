@@ -1,9 +1,8 @@
+# apps/promocodes/services.py
 from decimal import Decimal
 from django.utils import timezone
-from django.db.models import Q
 
-
-from apps.promocodes.services import *
+from apps.promocodes.models import PromoCode, PromoCodeUsage
 
 
 def apply_discount(base_price, discount_percent):
@@ -34,7 +33,6 @@ def record_promo_usage(promo, client, base_price, final_price):
             client=client,
             discount_applied=Decimal(str(round(float(base_price) - float(final_price), 2))),
         )
-
 
 def sessions_overlap(start_a, end_a, start_b, end_b):
     return start_a < end_b and end_a > start_b
