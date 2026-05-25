@@ -1,112 +1,217 @@
 {% extends 'base.html' %}
 
-{% block title %}Регистрация — ФОРСАЖ{% endblock %}
+{% block title %}Регистрация{% endblock %}
 
 {% block content %}
-<center>
-    <h1>📝 Регистрация клиента</h1>
-    <p><i>Только для лиц старше 18 лет. Телефон: +375 (29) XXX-XX-XX</i></p>
-    
-    <form method="post" style="width: 500px;" id="register-form">
-        <fieldset>
-            <legend><b>Создание аккаунта</b></legend>
-            {% csrf_token %}
-            <table width="100%" cellpadding="8">
-                {{ form.as_table }}
-                <tr id="age-error-row" style="display: none;">
-                    <td colspan="2" style="color: red; font-weight: bold;">
-                        ⚠️ Вы должны быть старше 18 лет для регистрации!
-                    </td>
-                </tr>
-                <tr>
-                    <td colspan="2" align="center">
-                        <button type="submit" id="submit-btn">Создать аккаунт</button>
-                    </td>
-                </tr>
-            </table>
-        </fieldset>
-    </form>
-    
-    <p>Уже есть аккаунт? <a href="{% url 'users:login' %}">🔐 Войти</a></p>
-</center>
 
-<script>
-    // Функция проверки возраста
-    function calculateAge(birthDate) {
-        const today = new Date();
-        let age = today.getFullYear() - birthDate.getFullYear();
-        const monthDiff = today.getMonth() - birthDate.getMonth();
-        if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
-            age--;
-        }
-        return age;
-    }
-    
-    // Функция валидации формы
-    function validateAge() {
-        const dateInput = document.querySelector('input[name="date_of_birth"]');
-        const ageErrorRow = document.getElementById('age-error-row');
-        const submitBtn = document.getElementById('submit-btn');
-        
-        if (!dateInput || !dateInput.value) {
-            return true;
-        }
-        
-        const birthDate = new Date(dateInput.value);
-        const age = calculateAge(birthDate);
-        
-        if (age < 18) {
-            ageErrorRow.style.display = 'table-row';
-            submitBtn.disabled = true;
-            submitBtn.style.opacity = '0.5';
-            submitBtn.style.cursor = 'not-allowed';
-            return false;
-        } else {
-            ageErrorRow.style.display = 'none';
-            submitBtn.disabled = false;
-            submitBtn.style.opacity = '1';
-            submitBtn.style.cursor = 'pointer';
-            return true;
-        }
-    }
-    
-    // Добавляем обработчики на поле даты рождения
-    document.addEventListener('DOMContentLoaded', function() {
-        const dateInput = document.querySelector('input[name="date_of_birth"]');
-        if (dateInput) {
-            // Устанавливаем максимальную дату (18 лет назад)
-            const today = new Date();
-            const maxDate = new Date(today.getFullYear() - 18, today.getMonth(), today.getDate());
-            const year = maxDate.getFullYear();
-            const month = String(maxDate.getMonth() + 1).padStart(2, '0');
-            const day = String(maxDate.getDate()).padStart(2, '0');
-            dateInput.max = `${year}-${month}-${day}`;
-            
-            // Добавляем обработчики событий
-            dateInput.addEventListener('change', validateAge);
-            dateInput.addEventListener('input', validateAge);
-            
-            // Проверяем сразу если есть значение
-            validateAge();
-        }
-    });
-    
-    // Дополнительная проверка при отправке формы
-    const form = document.getElementById('register-form');
-    if (form) {
-        form.addEventListener('submit', function(e) {
-            const dateInput = document.querySelector('input[name="date_of_birth"]');
-            if (dateInput && dateInput.value) {
-                const birthDate = new Date(dateInput.value);
-                const age = calculateAge(birthDate);
-                if (age < 18) {
-                    e.preventDefault();
-                    alert('❌ Регистрация недоступна! Вам должно быть 18 лет или больше.');
-                    return false;
-                }
-            }
-            return true;
-        });
-    }
-</script>
+<h2>📝 Регистрация</h2>
+
+<form method="post">
+    {% csrf_token %}
+
+    <table width="100%" cellpadding="8" cellspacing="0" border="1">
+
+        <tr bgcolor="#f0f0f0">
+            <td colspan="2">
+                <strong>Данные аккаунта</strong>
+            </td>
+        </tr>
+
+        <tr>
+            <td width="250">
+                <strong>Логин</strong>
+            </td>
+            <td>
+                {{ form.username }}
+
+                {% if form.username.errors %}
+                    <br>
+                    <small style="color:red;">
+                        {{ form.username.errors.0 }}
+                    </small>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>Email</strong>
+            </td>
+            <td>
+                {{ form.email }}
+
+                {% if form.email.errors %}
+                    <br>
+                    <small style="color:red;">
+                        {{ form.email.errors.0 }}
+                    </small>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>ФИО</strong>
+            </td>
+            <td>
+                {{ form.full_name }}
+
+                {% if form.full_name.errors %}
+                    <br>
+                    <small style="color:red;">
+                        {{ form.full_name.errors.0 }}
+                    </small>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr bgcolor="#f0f0f0">
+            <td colspan="2">
+                <strong>Безопасность</strong>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>Пароль</strong>
+            </td>
+            <td>
+                {{ form.password1 }}
+
+                {% if form.password1.help_text %}
+                    <br>
+                    <small>
+                        {{ form.password1.help_text|safe }}
+                    </small>
+                {% endif %}
+
+                {% if form.password1.errors %}
+                    <br>
+                    <small style="color:red;">
+                        {{ form.password1.errors.0 }}
+                    </small>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>Повторите пароль</strong>
+            </td>
+            <td>
+                {{ form.password2 }}
+
+                {% if form.password2.errors %}
+                    <br>
+                    <small style="color:red;">
+                        {{ form.password2.errors.0 }}
+                    </small>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr bgcolor="#f0f0f0">
+            <td colspan="2">
+                <strong>Информация клиента</strong>
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>Дата рождения</strong>
+            </td>
+            <td>
+                {{ form.date_of_birth }}
+
+                {% if form.date_of_birth.help_text %}
+                    <br>
+                    <small>
+                        {{ form.date_of_birth.help_text }}
+                    </small>
+                {% endif %}
+
+                {% if form.date_of_birth.errors %}
+                    <br>
+                    <small style="color:red;">
+                        {{ form.date_of_birth.errors.0 }}
+                    </small>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>Телефон</strong>
+            </td>
+            <td>
+                {{ form.phone }}
+
+                {% if form.phone.help_text %}
+                    <br>
+                    <small>
+                        {{ form.phone.help_text }}
+                    </small>
+                {% endif %}
+
+                {% if form.phone.errors %}
+                    <br>
+                    <small style="color:red;">
+                        {{ form.phone.errors.0 }}
+                    </small>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <td>
+                <strong>Адрес</strong>
+            </td>
+            <td>
+                {{ form.address }}
+
+                {% if form.address.errors %}
+                    <br>
+                    <small style="color:red;">
+                        {{ form.address.errors.0 }}
+                    </small>
+                {% endif %}
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2" align="center">
+                <button type="submit">
+                    ✅ Зарегистрироваться
+                </button>
+            </td>
+        </tr>
+
+    </table>
+</form>
+
+{% if form.non_field_errors %}
+    <br>
+
+    <table width="100%" border="1" cellpadding="10" bgcolor="#ffe6e6">
+        <tr>
+            <td>
+                <strong>Ошибка:</strong>
+
+                {% for error in form.non_field_errors %}
+                    <br>{{ error }}
+                {% endfor %}
+            </td>
+        </tr>
+    </table>
+{% endif %}
+
+<br>
+
+<p>
+    Уже есть аккаунт?
+    <a href="{% url 'users:login' %}">
+        Войти
+    </a>
+</p>
+
 {% endblock %}

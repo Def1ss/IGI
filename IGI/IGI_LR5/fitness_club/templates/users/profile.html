@@ -1,12 +1,213 @@
+{% extends 'base.html' %}
 {% load currency_tags %}
 
-<!-- Вместо hardcoded BYN -->
-{% for type_key, price in card_prices.items %}
-<form method="post" action="{% url 'users:purchase_club_card' %}">
-    {% csrf_token %}
-    <input type="hidden" name="card_type" value="{{ type_key }}">
-    <strong>{{ type_key|title }}</strong> — {% convert_price price %}
-    <input type="text" name="promo_code" placeholder="Промокод" size="15">
-    <button type="submit">Купить</button>
-</form>
-{% endfor %}
+{% block title %}Личный кабинет{% endblock %}
+
+{% block content %}
+
+<!-- Шапка профиля -->
+<table width="100%" cellpadding="10" cellspacing="0" border="1" bgcolor="#f8f9fa">
+    <tr bgcolor="#dfe6e9">
+        <td colspan="4">
+            <h2>👤 Личный кабинет</h2>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="20%"><strong>Логин</strong></td>
+        <td width="30%">{{ user.username }}</td>
+
+        <td width="20%"><strong>Email</strong></td>
+        <td width="30%">{{ user.email }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Имя</strong></td>
+        <td>{{ user.first_name }} {{ user.last_name }}</td>
+
+        {% if client %}
+            <td><strong>Телефон</strong></td>
+            <td>{{ client.phone }}</td>
+        {% else %}
+            <td></td>
+            <td></td>
+        {% endif %}
+    </tr>
+</table>
+
+<br>
+
+{% if client %}
+<!-- Блок клиента -->
+<table width="100%" cellpadding="10" cellspacing="0" border="1">
+    <tr bgcolor="#eeeeee">
+        <td colspan="4">
+            <h3>📋 Информация клиента</h3>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="20%"><strong>Дата рождения</strong></td>
+        <td width="30%">{{ client.date_of_birth }}</td>
+
+        <td width="20%"><strong>Адрес</strong></td>
+        <td width="30%">{{ client.address }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Дата регистрации</strong></td>
+        <td>{{ client.registration_date }}</td>
+
+        <td><strong>Абонемент</strong></td>
+        <td>
+            {% if client.club_card %}
+                {{ client.club_card.get_card_type_display }}
+                до {{ client.club_card.valid_to }}
+            {% else %}
+                Нет абонемента
+            {% endif %}
+        </td>
+    </tr>
+</table>
+
+<br>
+
+<!-- Покупка абонемента -->
+<table width="100%" cellpadding="10" cellspacing="0" border="1">
+    <tr bgcolor="#eeeeee">
+        <td colspan="4">
+            <h3>💳 Покупка абонемента</h3>
+        </td>
+    </tr>
+
+    {% for type_key, price in card_prices.items %}
+    <tr>
+        <td width="25%">
+            <strong>{{ type_key|title }}</strong>
+        </td>
+
+        <td width="20%">
+            {% convert_price price %}
+        </td>
+
+        <td width="25%">
+            <form method="post" action="{% url 'users:purchase_club_card' %}">
+                {% csrf_token %}
+
+                <input type="hidden"
+                       name="card_type"
+                       value="{{ type_key }}">
+
+                <input type="text"
+                       name="promo_code"
+                       placeholder="Промокод">
+
+        </td>
+
+        <td width="30%">
+                <button type="submit">
+                    Купить
+                </button>
+            </form>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+
+<!-- Записи -->
+<table width="100%" cellpadding="10" cellspacing="0" border="1">
+    <tr bgcolor="#eeeeee">
+        <td colspan="4">
+            <h3>📅 Мои записи</h3>
+        </td>
+    </tr>
+
+    {% for enrollment in enrollments %}
+    <tr>
+        <td>{{ enrollment.group.workout_type.name }}</td>
+        <td>{{ enrollment.group.instructor }}</td>
+        <td>{{ enrollment.group.start_time }}</td>
+        <td>{{ enrollment.status }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">
+            Нет записей
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+<br>
+{% endif %}
+
+{% if instructor %}
+<!-- Блок инструктора -->
+<table width="100%" cellpadding="10" cellspacing="0" border="1">
+    <tr bgcolor="#eeeeee">
+        <td colspan="4">
+            <h3>🏋️ Информация инструктора</h3>
+        </td>
+    </tr>
+
+    <tr>
+        <td width="20%"><strong>Стаж</strong></td>
+        <td width="30%">{{ instructor.experience_years }} лет</td>
+
+        <td width="20%"><strong>Дата найма</strong></td>
+        <td width="30%">{{ instructor.hire_date }}</td>
+    </tr>
+
+    <tr>
+        <td><strong>Специализации</strong></td>
+        <td colspan="3">
+            {% for spec in instructor.specialization.all %}
+                {{ spec.name }}{% if not forloop.last %}, {% endif %}
+            {% empty %}
+                Нет специализаций
+            {% endfor %}
+        </td>
+    </tr>
+
+    {% if instructor.photo %}
+    <tr>
+        <td><strong>Фото</strong></td>
+        <td colspan="3">
+            <img src="{{ instructor.photo.url }}"
+                 width="200"
+                 alt="Фото инструктора">
+        </td>
+    </tr>
+    {% endif %}
+</table>
+
+<br>
+
+<!-- Сессии инструктора -->
+<table width="100%" cellpadding="10" cellspacing="0" border="1">
+    <tr bgcolor="#eeeeee">
+        <td colspan="4">
+            <h3>📖 Индивидуальные тренировки</h3>
+        </td>
+    </tr>
+
+    {% for session in instructor_sessions %}
+    <tr>
+        <td>{{ session.client.user.get_full_name }}</td>
+        <td>{{ session.workout_type.name }}</td>
+        <td>{{ session.datetime }}</td>
+        <td>{{ session.status }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="4">
+            Нет тренировок
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+{% endif %}
+
+{% endblock %}
