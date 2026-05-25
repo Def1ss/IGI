@@ -1,17 +1,56 @@
 {% extends 'base.html' %}
+
 {% block title %}Контакты — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<h1>Наша команда</h1>
-<div class="grid-2">
-{% for person in team_members %}
-  <article class="card">
-    <h2>{{ person.full_name }}</h2>
-    <p class="muted">{{ person.role }}</p>
-    <p>Тел.: {{ person.phone }}</p>
-    <p>Email: <a href="mailto:{{ person.email }}">{{ person.email }}</a></p>
-  </article>
-{% empty %}
-  <p class="muted">Контакты не заполнены.</p>
-{% endfor %}
-</div>
+<h1>📞 Контакты</h1>
+
+<fieldset>
+    <legend><b>Основная информация</b></legend>
+    <table width="100%" cellpadding="8">
+        <tr>
+            <td width="120"><strong>📍 Адрес:</strong></td>
+            <td>г. Минск, ул. Спортивная, 15</td>
+        </tr>
+        <tr>
+            <td><strong>📞 Телефон:</strong></td>
+            <td>+375 (29) 123-45-67</td>
+        </tr>
+        <tr>
+            <td><strong>✉️ Email:</strong></td>
+            <td>info@forsazh.by</td>
+        </tr>
+        <tr>
+            <td><strong>🕐 Режим работы:</strong></td>
+            <td>Пн-Вс: 08:00 - 23:00</td>
+        </tr>
+    </table>
+</fieldset>
+
+<h2>👥 Наша команда</h2>
+
+<table border="1" width="100%" cellpadding="10" cellspacing="0">
+    <thead>
+        <tr bgcolor="#f0f0f0">
+            <th>Сотрудник</th>
+            <th>Должность</th>
+            <th>Телефон</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for person in team_members %}
+        <tr>
+            <td><strong>{{ person.full_name }}</strong></td>
+            <td>{{ person.role }}</td>
+            <td>{{ person.phone }}</td>
+            <td>{{ person.email }}</td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4" align="center"><i>Контакты не заполнены</i></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
 {% endblock %}

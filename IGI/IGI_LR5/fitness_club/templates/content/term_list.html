@@ -1,56 +1,88 @@
 {% extends 'base.html' %}
+
 {% block title %}Словарь терминов — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<h1><b>Словарь терминов и понятий</b></h1>
+<h1>📚 Словарь терминов и понятий</h1>
 
 <fieldset>
-  <legend><b>Поиск и сортировка</b></legend>
-  <form method="get">
-    <table border="0" cellpadding="4">
-      <tr><th align="left">Поиск</th><td><input type="search" name="q" value="{{ search }}" size="40"></td></tr>
-      <tr><th align="left">Категория</th><td>
-        <select name="category">
-          <option value="">Все</option>
-          {% for cat in categories %}
-          <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
-          {% endfor %}
-        </select>
-      </td></tr>
-      <tr><th align="left">Сортировка</th><td>
-        <select name="sort">
-          <option value="term" {% if sort == 'term' %}selected{% endif %}>Термин А-Я</option>
-          <option value="-term" {% if sort == '-term' %}selected{% endif %}>Термин Я-А</option>
-          <option value="category" {% if sort == 'category' %}selected{% endif %}>Категория</option>
-          <option value="-added_date" {% if sort == '-added_date' %}selected{% endif %}>Дата (новые)</option>
-        </select>
-      </td></tr>
-    </table>
-    <button type="submit">Применить</button>
-  </form>
+    <legend><b>🔍 Поиск и сортировка</b></legend>
+    <form method="get">
+        <table border="0" cellpadding="4">
+            <tr>
+                <th align="left">Поиск:</th>
+                <td><input type="search" name="q" value="{{ search }}" size="40"></td>
+            </tr>
+            <tr>
+                <th align="left">Категория:</th>
+                <td>
+                    <select name="category">
+                        <option value="">Все</option>
+                        {% for cat in categories %}
+                        <option value="{{ cat }}" {% if category == cat %}selected{% endif %}>{{ cat }}</option>
+                        {% endfor %}
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <th align="left">Сортировка:</th>
+                <td>
+                    <select name="sort">
+                        <option value="term" {% if sort == 'term' %}selected{% endif %}>Термин А-Я</option>
+                        <option value="-term" {% if sort == '-term' %}selected{% endif %}>Термин Я-А</option>
+                        <option value="category" {% if sort == 'category' %}selected{% endif %}>Категория</option>
+                        <option value="-added_date" {% if sort == '-added_date' %}selected{% endif %}>Дата (новые)</option>
+                    </select>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2" align="center"><button type="submit">Применить</button></td>
+            </tr>
+        </table>
+    </form>
 </fieldset>
+
 <br>
 
 {% if user.is_staff or user.is_superuser %}
-<form method="get" action="{% url 'content:term_create' %}"><button type="submit">+ Добавить термин (CRUD)</button></form>
+<form method="get" action="{% url 'content:term_create' %}">
+    <button type="submit">➕ Добавить термин</button>
+</form>
 <br>
 {% endif %}
 
 <table border="1" width="100%" cellpadding="6" cellspacing="0">
-  <tr><th>Термин</th><th>Категория</th><th>Действия</th></tr>
-  {% for item in terms %}
-  <tr>
-    <td><b>{{ item.term }}</b></td>
-    <td>{{ item.category }}</td>
-    <td>
-      <form method="get" action="{% url 'content:term_detail' item.pk %}"><button type="submit">Читать</button></form>
-      {% if user.is_staff or user.is_superuser %}
-      <form method="get" action="{% url 'content:term_update' item.pk %}"><button type="submit">Изменить</button></form>
-      <form method="get" action="{% url 'content:term_delete' item.pk %}"><button type="submit">Удалить</button></form>
-      {% endif %}
-    </td>
-  </tr>
-  {% empty %}
-  <tr><td colspan="3"><i>Термины не найдены.</i></td></tr>
-  {% endfor %}
+    <thead>
+        <tr bgcolor="#f0f0f0">
+            <th>Термин</th>
+            <th>Категория</th>
+            <th>Действия</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in terms %}
+        <tr>
+            <td><b>{{ item.term }}</b></td>
+            <td>{{ item.category }}</td>
+            <td>
+                <form method="get" action="{% url 'content:term_detail' item.pk %}" style="display:inline;">
+                    <button type="submit">📖 Читать</button>
+                </form>
+                {% if user.is_staff or user.is_superuser %}
+                <form method="get" action="{% url 'content:term_update' item.pk %}" style="display:inline;">
+                    <button type="submit">✏️ Изменить</button>
+                </form>
+                <form method="get" action="{% url 'content:term_delete' item.pk %}" style="display:inline;">
+                    <button type="submit">🗑️ Удалить</button>
+                </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="3" align="center"><i>Термины не найдены.</i></td>
+        </tr>
+        {% endfor %}
+    </tbody>
 </table>
 {% endblock %}

@@ -1,14 +1,30 @@
 {% extends 'base.html' %}
+{% load currency_tags %}
+
 {% block title %}Вакансии — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<h1>Вакансии</h1>
+<h1>💼 Вакансии</h1>
+
 {% for vacancy in vacancies %}
-  <article class="card">
-    <h2>{{ vacancy.position }}</h2>
-    {% if vacancy.salary %}<p class="muted">Зарплата: {{ vacancy.salary }}</p>{% endif %}
+<fieldset>
+    <legend><b>{{ vacancy.position }}</b></legend>
+    
+    {% if vacancy.salary_min and vacancy.salary_max %}
+        <p><strong>💰 Зарплата:</strong> 
+            от {% convert_price vacancy.salary_min %} до {% convert_price vacancy.salary_max %}
+        </p>
+    {% elif vacancy.salary_min %}
+        <p><strong>💰 Зарплата:</strong> от {% convert_price vacancy.salary_min %}</p>
+    {% elif vacancy.salary_max %}
+        <p><strong>💰 Зарплата:</strong> до {% convert_price vacancy.salary_max %}</p>
+    {% else %}
+        <p><strong>💰 Зарплата:</strong> договорная</p>
+    {% endif %}
+    
     <p>{{ vacancy.description|linebreaks }}</p>
-  </article>
+</fieldset>
 {% empty %}
-  <p class="muted">Активных вакансий нет.</p>
+<p><i>Активных вакансий нет.</i></p>
 {% endfor %}
 {% endblock %}

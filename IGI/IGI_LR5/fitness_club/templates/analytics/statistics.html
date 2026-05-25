@@ -1,68 +1,171 @@
 {% extends 'base.html' %}
+
 {% block title %}Статистика — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<h1>Статистика клуба</h1>
+<h1>📊 Статистика клуба</h1>
 
-<div class="grid-2">
-  <section class="card">
-    <h2>Возраст клиентов</h2>
-    <p>Средний: <strong>{{ avg_age }}</strong> лет</p>
-    <p>Медиана: <strong>{{ median_age }}</strong> лет</p>
-  </section>
-  <section class="card">
-    <h2>Популярность видов тренировок</h2>
-    <ol>
-      {% for name, count in popularity_list %}
-      <li>{{ name }} — {{ count }} клиент(ов)</li>
-      {% empty %}
-      <li class="muted">Нет данных</li>
-      {% endfor %}
-    </ol>
-  </section>
-</div>
+<!-- Возраст клиентов -->
+<fieldset>
+    <legend><b>👥 Возраст клиентов</b></legend>
+    <table width="100%" cellpadding="8">
+        <tr>
+            <td><strong>📊 Средний возраст:</strong></td>
+            <td>{{ avg_age }} лет</td>
+        </tr>
+        <tr>
+            <td><strong>📈 Медианный возраст:</strong></td>
+            <td>{{ median_age }} лет</td>
+        </tr>
+    </table>
+</fieldset>
 
-<section class="card">
-  <h2>Доходность по видам тренировок</h2>
-  <table>
-    <thead><tr><th>Вид</th><th>Доход (BYN)</th></tr></thead>
-    <tbody>
-    {% for name, profit in profitability_list %}
-      <tr><td>{{ name }}</td><td>{{ profit }}</td></tr>
-    {% endfor %}
-    </tbody>
-  </table>
-</section>
+<!-- Статистика по продажам -->
+<fieldset>
+    <legend><b>💰 Статистика по продажам</b></legend>
+    <table width="100%" cellpadding="8">
+        <tr>
+            <td><strong>💵 Общая сумма продаж:</strong></td>
+            <td>{{ total_sales|floatformat:2 }} BYN</td>
+        </tr>
+        <tr>
+            <td><strong>📊 Средняя сумма продаж:</strong></td>
+            <td>{{ avg_sales|floatformat:2 }} BYN</td>
+        </tr>
+        <tr>
+            <td><strong>⭐ Мода (самое частое значение):</strong></td>
+            <td>{{ mode_sales|floatformat:2 }} BYN</td>
+        </tr>
+        <tr>
+            <td><strong>📈 Медиана продаж:</strong></td>
+            <td>{{ median_sales|floatformat:2 }} BYN</td>
+        </tr>
+    </table>
+</fieldset>
 
-<section class="card">
-  <h2>Оплаты клиентов (по алфавиту)</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>Клиент</th>
-        <th>Телефон</th>
-        <th>Группы</th>
-        <th>Индив.</th>
-        <th>Абонемент</th>
-        <th>Итого</th>
-      </tr>
-    </thead>
-    <tbody>
-    {% for row in client_payments %}
-      <tr>
-        <td>{{ row.full_name }}</td>
-        <td>{{ row.phone }}</td>
-        <td>{{ row.group_paid }}</td>
-        <td>{{ row.individual_paid }}</td>
-        <td>{{ row.subscription_paid }}</td>
-        <td><strong>{{ row.total_paid }}</strong></td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-</section>
+<!-- Список клиентов в алфавитном порядке -->
+<fieldset>
+    <legend><b>📋 Список клиентов (по алфавиту)</b></legend>
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr bgcolor="#f0f0f0">
+                <th>№</th>
+                <th>ФИО клиента</th>
+                <th>Возраст</th>
+                <th>Общая сумма оплат (BYN)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for client in clients %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ client.name }}</td>
+                <td>{{ client.age }}</td>
+                <td>{{ client.total_paid|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr bgcolor="#e9ecef">
+                <td colspan="3" align="right"><strong>ИТОГО:</strong></td>
+                <td><strong>{{ total_sales|floatformat:2 }} BYN</strong></td>
+            </tr>
+        </tfoot>
+    </table>
+</fieldset>
 
-<section class="card">
-  <h2>Занятий по группам (JSON для графиков)</h2>
-  <pre class="muted">{{ chart_groups_data_json }}</pre>
-</section>
+<!-- Популярность видов тренировок -->
+<fieldset>
+    <legend><b>🏋️ Популярность видов тренировок</b></legend>
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr bgcolor="#f0f0f0">
+                <th>№</th>
+                <th>Тип тренировки</th>
+                <th>Количество клиентов</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in workout_popularity %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.clients_count }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p><strong>🏆 Самый популярный тип:</strong> {{ workout_popularity.0.name }} ({{ workout_popularity.0.clients_count }} клиентов)</p>
+</fieldset>
+
+<!-- Доходность по типам тренировок -->
+<fieldset>
+    <legend><b>💰 Доходность по видам тренировок</b></legend>
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr bgcolor="#f0f0f0">
+                <th>№</th>
+                <th>Тип тренировки</th>
+                <th>Доход (BYN)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in workout_profit %}
+            <tr>
+                <td>{{ forloop.counter }}</td>
+                <td>{{ item.name }}</td>
+                <td>{{ item.profit|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+        <tfoot>
+            <tr bgcolor="#e9ecef">
+                <td colspan="2" align="right"><strong>ОБЩИЙ ДОХОД:</strong></td>
+                <td><strong>
+                    {% with total=0 %}
+                        {% for item in workout_profit %}
+                            {% with total=total|add:item.profit %}
+                            {% endwith %}
+                        {% endfor %}
+                        {% for item in workout_profit %}
+                            {% if forloop.first %}
+                                {{ item.profit }}
+                            {% else %}
+                                + {{ item.profit }}
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                </strong></td>
+            </tr>
+        </tfoot>
+    </table>
+    <p><strong>🏆 Самый прибыльный тип:</strong> {{ workout_profit.0.name }} ({{ workout_profit.0.profit|floatformat:2 }} BYN)</p>
+</fieldset>
+
+<!-- Динамика доходов по месяцам -->
+<fieldset>
+    <legend><b>📈 Динамика доходов по месяцам</b></legend>
+    <table border="1" width="100%" cellpadding="8" cellspacing="0">
+        <thead>
+            <tr bgcolor="#f0f0f0">
+                <th>Месяц</th>
+                <th>Доход (BYN)</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in monthly_revenue %}
+            <tr>
+                <td>{{ item.month }}</td>
+                <td>{{ item.amount|floatformat:2 }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+            <tfoot>
+                <tr bgcolor="#e9ecef">
+                    <td colspan="2" align="right"><strong>ОБЩИЙ ДОХОД:</strong></td>
+                    <td><strong>{{ total_profit|floatformat:2 }} BYN</strong></td>
+                </tr>
+            </tfoot>
+    </table>
+</fieldset>
 {% endblock %}

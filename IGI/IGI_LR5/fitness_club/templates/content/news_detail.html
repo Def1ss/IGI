@@ -1,13 +1,22 @@
 {% extends 'base.html' %}
+
 {% block title %}{{ article.title }} — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<article class="card">
-  <h1>{{ article.title }}</h1>
-  <p class="muted">{{ article.published_date|date:"d.m.Y H:i" }}</p>
-  {% if article.image %}
-    <p><img src="{{ article.image.url }}" alt="{{ article.title }}" style="max-width:100%;border-radius:8px;"></p>
-  {% endif %}
-  <div>{{ article.full_text|linebreaks }}</div>
-  <p><a href="{% url 'content:news_list' %}">← К списку новостей</a></p>
-</article>
+<fieldset>
+    <legend><b>{{ article.title }}</b></legend>
+    
+    <p><small>📅 {{ article.published_date|date:"d.m.Y H:i" }}</small></p>
+    <p><small>✍️ Автор: {{ article.author.get_full_name|default:article.author.username }}</small></p>
+    
+    {% if article.image %}
+        <p><img src="{{ article.image.url }}" alt="{{ article.title }}" width="100%"></p>
+    {% endif %}
+    
+    <hr>
+    <div>{{ article.full_text|linebreaks }}</div>
+    <hr>
+    
+    <p><a href="{% url 'content:news_list' %}">← К списку новостей</a></p>
+</fieldset>
 {% endblock %}

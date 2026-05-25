@@ -28,6 +28,7 @@ INSTALLED_APPS = [
     'apps.content',
     'apps.reviews',
     'apps.analytics',
+    'apps.currency',
 ]
 
 MIDDLEWARE = [

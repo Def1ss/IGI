@@ -20,3 +20,4 @@ requests-mock==1.12.1
 sqlparse==0.5.5
 urllib3==2.7.0
 whitenoise==6.8.2
+Unidecode

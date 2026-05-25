@@ -1,83 +1,147 @@
-{% load static %}
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}ФОРСАЖ — Фитнес-клуб{% endblock %}</title>
-  <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <meta charset="utf-8">
+    <title>{% block title %}ФОРСАЖ — Фитнес-клуб{% endblock %}</title>
 </head>
 <body>
-  <header class="site-header">
-    <a href="{% url 'content:home' %}" class="logo">ФОРСАЖ</a>
-    <nav>
-      <ul class="nav-links">
-        <li><a href="{% url 'content:home' %}">Главная</a></li>
-        <li><a href="{% url 'content:about' %}">О нас</a></li>
-        <li><a href="{% url 'content:news_list' %}">Новости</a></li>
-        <li><a href="{% url 'workouts:schedule' %}">Расписание</a></li>
-        <li><a href="{% url 'promocodes:list' %}">Промокоды</a></li>
-        <li><a href="{% url 'reviews:list' %}">Отзывы</a></li>
-        <li><a href="{% url 'content:faq' %}">FAQ</a></li>
-        <li><a href="{% url 'content:contacts' %}">Контакты</a></li>
-        <li><a href="{% url 'content:vacancies' %}">Вакансии</a></li>
-        {% if user.is_authenticated %}
-          <li><a href="{% url 'enrollments:session_list' %}">Индив. занятия</a></li>
-          <li><a href="{% url 'users:profile' %}">Профиль</a></li>
-          {% if user.is_superuser %}
-            <li><a href="{% url 'analytics:statistics' %}">Статистика</a></li>
-          {% endif %}
-        {% else %}
-          <li><a href="{% url 'users:login' %}">Вход</a></li>
-        {% endif %}
-      </ul>
-    </nav>
-    <div class="header-meta">
-      <span id="clock">{{ server_now|date:"d.m.Y H:i:s" }}</span>
-      <form class="currency-form" method="post" action="{% url 'users:set_currency' %}">
-        {% csrf_token %}
-        <select name="currency" onchange="this.form.submit()">
-          <option value="BYN" {% if selected_currency == 'BYN' %}selected{% endif %}>BYN</option>
-          <option value="USD" {% if selected_currency == 'USD' %}selected{% endif %}>USD</option>
-          <option value="EUR" {% if selected_currency == 'EUR' %}selected{% endif %}>EUR</option>
-        </select>
-      </form>
-      {% if user.is_authenticated %}
-        <span>{{ user.get_full_name|default:user.username }}</span>
-        <form method="post" action="{% url 'users:logout' %}" class="inline-form">
-          {% csrf_token %}
-          <button type="submit" class="btn btn-secondary">Выход</button>
-        </form>
-      {% endif %}
-    </div>
-  </header>
 
-  <main>
-    {% if messages %}
-      <ul class="messages">
-        {% for message in messages %}
-          <li class="{{ message.tags }}">{{ message }}</li>
-        {% endfor %}
-      </ul>
-    {% endif %}
-    {% block content %}{% endblock %}
-  </main>
+<!-- Шапка сайта -->
+<table width="100%" cellpadding="10" cellspacing="0" border="0">
+    <tr bgcolor="#f0f0f0">
+        <td>
+            <table width="100%" cellpadding="10">
+                <tr>
+                    <td width="200"><a href="{% url 'content:home' %}"><strong>🏋️ ФОРСАЖ</strong></a></td>
+                    <td align="center">
+                        <a href="{% url 'content:home' %}">Главная</a> |
+                        <a href="{% url 'content:about' %}">О компании</a> |
+                        <a href="{% url 'content:news_list' %}">Новости</a> |
+                        <a href="{% url 'workouts:schedule' %}">Расписание</a> |
+                        <a href="{% url 'enrollments:session_list' %}">Индивидуальные</a> |
+                        <a href="{% url 'promocodes:list' %}">Промокоды</a> |
+                        <a href="{% url 'content:vacancies' %}">Вакансии</a> |
+                        <a href="{% url 'reviews:list' %}">Отзывы</a> |
+                        <a href="{% url 'content:faq' %}">Вопросы-ответы</a> |
+                        <a href="{% url 'content:contacts' %}">Контакты</a> |
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'users:profile' %}">Личный кабинет</a> |
+                            <form method="post" action="{% url 'users:logout' %}" style="display: inline;">
+                                {% csrf_token %}
+                                <input type="submit" value="Выход">
+                            </form>
+                        {% else %}
+                            <a href="{% url 'users:login' %}">Вход</a>
+                        {% endif %}
+                    </td>
+                    <td width="220" align="right" bgcolor="#e9ecef" style="border-radius: 5px;">
+                        <table cellpadding="3">
+                            <tr>
+                                <td><strong>💱 Конвертер:</strong></td>
+                                <td><small>{{ example_conversion }}</small></td>
+                            </tr>
+                            <tr>
+                                <td><form method="post" action="{% url 'users:set_currency' %}">
+                                    {% csrf_token %}
+                                    <select name="currency" onchange="this.form.submit()" style="padding: 2px;">
+                                        <option value="BYN" {% if selected_currency == 'BYN' %}selected{% endif %}>BYN (Br)</option>
+                                        <option value="USD" {% if selected_currency == 'USD' %}selected{% endif %}>USD ($)</option>
+                                        <option value="EUR" {% if selected_currency == 'EUR' %}selected{% endif %}>EUR (€)</option>
+                                    </select>
+                                    <button type="submit" style="padding: 2px 8px;">Применить</button>
+                                </form>
+                                <td>
+                            </tr>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </tr>
+    </table>
+</td>
 
-  <footer class="site-footer">
-  <p>© Фитнес-клуб «ФОРСАЖ» · <a href="{% url 'content:privacy' %}">Политика конфиденциальности</a></p>
-  </footer>
-  <script>
-    (function () {
-      const el = document.getElementById('clock');
-      if (!el) return;
-      function tick() {
-        const d = new Date();
-        el.textContent = d.toLocaleString('ru-RU');
-      }
-      tick();
-      setInterval(tick, 1000);
-    })();
-  </script>
-  {% block extra_js %}{% endblock %}
+<!-- Панель времени -->
+<table width="100%" cellpadding="8" cellspacing="0" border="0" bgcolor="#e9ecef">
+    <tr>
+        <td>
+            <table align="center" cellpadding="5">
+                <tr>
+                    <td><strong>🕐 Серверное время (Минск):</strong></td>
+                    <td id="server-time" style="font-family: monospace; font-weight: bold;">{{ server_now|date:"d.m.Y H:i:s" }}</td>
+                    <td width="30"></td>
+                    <td><strong>🌍 UTC:</strong></td>
+                    <td id="utc-time" style="font-family: monospace; font-weight: bold;">--:--:--</td>
+                </tr>
+                <tr>
+                    <td><strong>💻 Ваше локальное время:</strong></td>
+                    <td id="local-time" colspan="4" style="font-family: monospace; font-weight: bold;">--:--:--</td>
+                </tr>
+            </table>
+        </td>
+    </tr>
+</table>
+
+<!-- Основной контент -->
+<table width="100%" cellpadding="20">
+    <tr>
+        <td>
+            {% if messages %}
+                {% for message in messages %}
+                    <p><strong>{{ message }}</strong></p>
+                {% endfor %}
+                <hr>
+            {% endif %}
+            
+            {% block content %}{% endblock %}
+        </td>
+    </tr>
+</table>
+
+<!-- Подвал -->
+<hr>
+<center>
+    <p>© 2026 Фитнес-клуб «ФОРСАЖ» · <a href="{% url 'content:privacy' %}">Политика конфиденциальности</a></p>
+</center>
+
+<script>
+    function updateLocalAndUTCTime() {
+        const now = new Date();
+        
+        const utcYear = now.getUTCFullYear();
+        const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
+        const utcDay = String(now.getUTCDate()).padStart(2, '0');
+        const utcHours = String(now.getUTCHours()).padStart(2, '0');
+        const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
+        const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
+        const utcString = `${utcDay}.${utcMonth}.${utcYear} ${utcHours}:${utcMinutes}:${utcSeconds}`;
+        
+        const localString = now.toLocaleString('ru-RU', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit',
+            second: '2-digit'
+        });
+        
+        document.getElementById('utc-time').textContent = utcString;
+        document.getElementById('local-time').textContent = localString;
+    }
+    
+    function updateServerTime() {
+        fetch('/api/server-time/')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('server-time').textContent = data.server_local;
+            })
+            .catch(error => console.error('Ошибка получения серверного времени:', error));
+    }
+    
+    updateLocalAndUTCTime();
+    setInterval(updateLocalAndUTCTime, 1000);
+    setInterval(updateServerTime, 10000);
+</script>
+
+{% block extra_js %}{% endblock %}
 </body>
 </html>

@@ -147,4 +147,8 @@ def set_currency(request):
     currency = request.POST.get('currency', 'BYN')
     if currency in ('BYN', 'USD', 'EUR'):
         request.session['currency'] = currency
+        messages.success(request, f'Валюта изменена на {currency}. Курсы обновляются каждый час.')
+    else:
+        messages.error(request, 'Неверная валюта')
+    
     return redirect(request.META.get('HTTP_REFERER', '/'))

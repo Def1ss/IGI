@@ -9,9 +9,9 @@ class NewsAdmin(admin.ModelAdmin):
 
 @admin.register(Vacancy)
 class VacancyAdmin(admin.ModelAdmin):
-    list_display = ('id', 'position', 'salary', 'is_active')
+    list_display = ('position', 'salary', 'is_active')
     list_filter = ('is_active',)
-    search_fields = ('position', 'description')
+    search_fields = ('position',)
 
 @admin.register(FAQ)
 class FAQAdmin(admin.ModelAdmin):

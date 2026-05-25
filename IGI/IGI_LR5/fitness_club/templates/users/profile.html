@@ -1,74 +1,12 @@
-{% extends 'base.html' %}
-{% block title %}Профиль — ФОРСАЖ{% endblock %}
-{% block content %}
-<h1>Личный кабинет</h1>
-<p class="muted">Пользователь: {{ user.get_full_name|default:user.username }} ({{ user.email }})</p>
+{% load currency_tags %}
 
-{% if client %}
-<section class="card">
-  <h2>Данные клиента</h2>
-  {% if profile_form %}
-  <form method="post">
-    {% csrf_token %}
-    <input type="hidden" name="update_profile" value="1">
-    {{ profile_form.as_p }}
-    <button type="submit" class="btn">Сохранить</button>
-  </form>
-  {% endif %}
-  {% if client.club_card %}
-    <p>Активная карта: <strong>{{ client.club_card.get_card_type_display }}</strong> до {{ client.club_card.valid_to|date:"d.m.Y" }}</p>
-  {% else %}
-    <p class="muted">Клубная карта не оформлена.</p>
-  {% endif %}
-</section>
-
-<section class="card">
-  <h2>Купить абонемент</h2>
-  {% for type_key, price in card_prices.items %}
-  <form method="post" action="{% url 'users:purchase_club_card' %}" style="margin-bottom:0.75rem;">
+<!-- Вместо hardcoded BYN -->
+{% for type_key, price in card_prices.items %}
+<form method="post" action="{% url 'users:purchase_club_card' %}">
     {% csrf_token %}
     <input type="hidden" name="card_type" value="{{ type_key }}">
-    <label>{{ type_key }} — {{ price }} BYN</label>
-    <input type="text" name="promo_code" placeholder="Промокод (необязательно)">
-    <button type="submit" class="btn">Купить</button>
-  </form>
-  {% endfor %}
-</section>
-
-<section class="card">
-  <h2>Мои группы</h2>
-  {% if enrollments %}
-  <table>
-    <thead><tr><th>Группа</th><th>Оплата</th><th>Сумма</th></tr></thead>
-    <tbody>
-    {% for e in enrollments %}
-      <tr>
-        <td>{{ e.group.name }}</td>
-        <td>{{ e.get_payment_status_display }}</td>
-        <td>{{ e.paid_amount }} BYN</td>
-      </tr>
-    {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-    <p class="muted">Вы ещё не записаны в группы. <a href="{% url 'workouts:schedule' %}">Расписание</a></p>
-  {% endif %}
-</section>
-{% endif %}
-
-{% if instructor %}
-<section class="card">
-  <h2>Панель тренера</h2>
-  <p>Стаж: {{ instructor.experience_years }} лет</p>
-  <p><a href="{% url 'enrollments:session_list' %}">Индивидуальные занятия</a></p>
-</section>
-{% endif %}
-
-{% if user.is_superuser %}
-<section class="card">
-  <h2>Администратор</h2>
-  <p><a class="btn" href="{% url 'analytics:statistics' %}">Статистика клуба</a></p>
-  <p><a href="/admin/">Django Admin</a></p>
-</section>
-{% endif %}
-{% endblock %}
+    <strong>{{ type_key|title }}</strong> — {% convert_price price %}
+    <input type="text" name="promo_code" placeholder="Промокод" size="15">
+    <button type="submit">Купить</button>
+</form>
+{% endfor %}

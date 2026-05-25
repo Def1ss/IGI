@@ -1,14 +1,18 @@
 {% extends 'base.html' %}
+
 {% block title %}Новости — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<h1>Новости клуба</h1>
+<h1>📰 Новости клуба</h1>
+
 {% for article in news_articles %}
-  <article class="card">
-    <h2><a href="{% url 'content:news_detail' article.slug %}">{{ article.title }}</a></h2>
-    <p class="muted">{{ article.published_date|date:"d.m.Y" }} · {{ article.author.get_full_name|default:article.author.username }}</p>
+<fieldset>
+    <legend><b>{{ article.title }}</b></legend>
+    <p><small>{{ article.published_date|date:"d.m.Y" }} · {{ article.author.get_full_name|default:article.author.username }}</small></p>
     <p>{{ article.summary }}</p>
-  </article>
+    <p><a href="{% url 'content:news_detail' article.slug %}">Читать →</a></p>
+</fieldset>
 {% empty %}
-  <p class="muted">Новостей пока нет.</p>
+<p><i>Новостей пока нет.</i></p>
 {% endfor %}
 {% endblock %}

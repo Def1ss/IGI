@@ -1,15 +1,15 @@
 from django.views.generic import ListView, DetailView, TemplateView
 from .models import News, CompanyHistory, FAQ, ContactPerson, Vacancy
-from apps.apps_utils import get_random_exercise_quote # standard helper simulation
+from django.utils.text import slugify
+from unidecode import unidecode
+from apps.apps_utils import get_random_exercise_quote
 
 class HomeView(TemplateView):
     template_name = 'content/home.html'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        # Fetch latest news article
         context['latest_news'] = News.objects.order_by('-published_date').first()
-        # Fetch motivational quote (server-side backup/mock helper)
         context['motivation'] = get_random_exercise_quote()
         return context
 

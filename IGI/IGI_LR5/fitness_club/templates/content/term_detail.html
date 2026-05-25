@@ -1,12 +1,19 @@
 {% extends 'base.html' %}
-{% block title %}{{ term.term }} — Словарь{% endblock %}
+
+{% block title %}{{ term.term }} — Словарь ФОРСАЖ{% endblock %}
+
 {% block content %}
 <fieldset>
-  <legend><b>{{ term.term }}</b></legend>
-  <p><i>Категория:</i> {{ term.category }}</p>
-  <p>{{ term.definition|linebreaks }}</p>
-  <p><small>Добавлено: {{ term.added_date|date:"d.m.Y" }}</small></p>
+    <legend><b>📖 {{ term.term }}</b></legend>
+    <p><strong>📂 Категория:</strong> {{ term.category }}</p>
+    <hr>
+    <p>{{ term.definition|linebreaks }}</p>
+    <hr>
+    <p><small>📅 Добавлено: {{ term.added_date|date:"d.m.Y" }}</small></p>
 </fieldset>
+
 <br>
-<form method="get" action="{% url 'content:term_list' %}"><button type="submit">← К словарю</button></form>
+<form method="get" action="{% url 'content:term_list' %}">
+    <button type="submit">← К словарю</button>
+</form>
 {% endblock %}

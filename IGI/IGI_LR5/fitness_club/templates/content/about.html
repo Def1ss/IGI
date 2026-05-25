@@ -1,13 +1,23 @@
 {% extends 'base.html' %}
-{% block title %}О нас — ФОРСАЖ{% endblock %}
+
+{% block title %}О компании — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<h1>История компании</h1>
+<h1>📖 О фитнес-клубе «ФОРСАЖ»</h1>
+
+<fieldset>
+    <legend><b>Наша миссия</b></legend>
+    <p>Сделать фитнес доступным и эффективным для каждого, кто стремится к здоровому образу жизни и личным достижениям.</p>
+</fieldset>
+
+<h2>🏢 История компании</h2>
+
 {% for event in history_events %}
-  <article class="card">
-    <h2>{{ event.year }}</h2>
+<fieldset>
+    <legend><b>{{ event.year }}</b></legend>
     <p>{{ event.event }}</p>
-  </article>
+</fieldset>
 {% empty %}
-  <p class="muted">История пока не заполнена.</p>
+<p><i>История пока не заполнена.</i></p>
 {% endfor %}
 {% endblock %}

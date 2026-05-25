@@ -1,30 +1,33 @@
 {% extends 'base.html' %}
+
 {% block title %}Отзывы — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<h1>Отзывы клиентов</h1>
+<h1>⭐ Отзывы клиентов</h1>
 
 {% if form %}
-<section class="card">
-  <h2>Оставить отзыв</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn">Отправить</button>
-  </form>
-</section>
+<fieldset>
+    <legend><b>Оставить отзыв</b></legend>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">Отправить</button>
+    </form>
+</fieldset>
 {% elif user.is_authenticated and client %}
-<p class="muted">Отзыв доступен после оплаченного группового или завершённого индивидуального занятия.</p>
+<p><i>Отзыв доступен после оплаченного группового или завершённого индивидуального занятия.</i></p>
 {% elif not user.is_authenticated %}
-<p class="muted"><a href="{% url 'users:login' %}">Войдите</a>, чтобы оставить отзыв.</p>
+<p><i><a href="{% url 'users:login' %}">Войдите</a>, чтобы оставить отзыв.</i></p>
 {% endif %}
 
 {% for review in reviews %}
-<article class="card">
-  <p class="rating">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</p>
-  <p>{{ review.text }}</p>
-  <p class="muted">{{ review.client.user.get_full_name|default:review.client.user.username }} · {{ review.created_at|date:"d.m.Y" }}</p>
-</article>
+<fieldset>
+    <legend><b>{{ review.client.user.get_full_name|default:review.client.user.username }}</b></legend>
+    <p>⭐ {% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</p>
+    <p>{{ review.text }}</p>
+    <p><small>📅 {{ review.created_at|date:"d.m.Y" }}</small></p>
+</fieldset>
 {% empty %}
-<p class="muted">Отзывов пока нет.</p>
+<p><i>Отзывов пока нет.</i></p>
 {% endfor %}
 {% endblock %}

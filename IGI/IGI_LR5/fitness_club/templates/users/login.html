@@ -1,13 +1,26 @@
 {% extends 'base.html' %}
+
 {% block title %}Вход — ФОРСАЖ{% endblock %}
+
 {% block content %}
-<section class="card" style="max-width:420px;">
-  <h1>Вход</h1>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn">Войти</button>
-  </form>
-  <p class="muted">Нет аккаунта? <a href="{% url 'users:register' %}">Зарегистрироваться</a></p>
-</section>
+<center>
+    <h1>🔐 Вход в систему</h1>
+    
+    <form method="post" style="width: 400px;">
+        <fieldset>
+            <legend><b>Авторизация</b></legend>
+            {% csrf_token %}
+            <table width="100%" cellpadding="8">
+                {{ form.as_table }}
+                <tr>
+                    <td colspan="2" align="center">
+                        <button type="submit">Войти</button>
+                    </td>
+                </tr>
+            </table>
+        </fieldset>
+    </form>
+    
+    <p><a href="{% url 'users:register' %}">📝 Зарегистрироваться</a></p>
+</center>
 {% endblock %}
