@@ -1,3 +1,6 @@
+import calendar
+from datetime import date, timedelta
+
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
@@ -44,6 +47,28 @@ class ScheduleListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        
+        # Получаем параметры календаря из GET
+        today = date.today()
+        year = int(self.request.GET.get('year', today.year))
+        month = int(self.request.GET.get('month', today.month))
+        
+        # Названия месяцев на русском
+        months_ru = {
+            1: 'Январь', 2: 'Февраль', 3: 'Март', 4: 'Апрель',
+            5: 'Май', 6: 'Июнь', 7: 'Июль', 8: 'Август',
+            9: 'Сентябрь', 10: 'Октябрь', 11: 'Ноябрь', 12: 'Декабрь'
+        }
+        
+        # Создаем текстовый календарь
+        cal = calendar.TextCalendar(firstweekday=calendar.MONDAY)
+        text_calendar = cal.formatmonth(year, month)
+        
+        # Для навигации по месяцам
+        current_month_date = date(year, month, 1)
+        prev_month_date = current_month_date - timedelta(days=1)
+        next_month_date = current_month_date + timedelta(days=32)
+        
         context['groups'] = Group.objects.select_related('workout_type').all()
         context['halls'] = (
             ScheduledClass.objects.select_related('hall')
@@ -57,6 +82,17 @@ class ScheduleListView(ListView):
             'hall': self.request.GET.get('hall', ''),
             'q': self.request.GET.get('q', ''),
         }
+        
+        # Календарь в контекст
+        context['year'] = year
+        context['month'] = month
+        context['month_name'] = months_ru.get(month, '')
+        context['text_calendar'] = text_calendar
+        context['prev_year'] = prev_month_date.year
+        context['prev_month'] = prev_month_date.month
+        context['next_year'] = next_month_date.year
+        context['next_month'] = next_month_date.month
+        
         client = None
         if self.request.user.is_authenticated:
             client = Client.objects.filter(user=self.request.user).first()
