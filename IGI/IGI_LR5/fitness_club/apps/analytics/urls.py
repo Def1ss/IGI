@@ -1,9 +1,13 @@
 from django.urls import path
 
-from . import views
+from .views import statistics_view
 
-app_name = 'analytics'
+app_name = "analytics"
 
 urlpatterns = [
-    path('', views.statistics_view, name='statistics'),
+    path(
+        "",
+        statistics_view,
+        name="statistics",
+    ),
 ]

@@ -31,6 +31,7 @@ urlpatterns = [
     path('profile/', include('apps.users.urls')), # /profile/
     path('statistics/', include('apps.analytics.urls')), # /statistics/
     path('individual/sessions/', include('apps.enrollments.urls')), # /individual/sessions/
+    path('analytics/', include('apps.analytics.urls')),
 ]
 
 if settings.DEBUG:

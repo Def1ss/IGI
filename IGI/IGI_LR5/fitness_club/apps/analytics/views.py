@@ -1,113 +1,166 @@
-# apps/analytics/views.py
+from datetime import date
+from statistics import median
+
 from django.shortcuts import render
-from django.contrib.auth.decorators import user_passes_test
-from collections import Counter
+from django.db.models import Sum
+from django.db.models.functions import TruncMonth
+
+from apps.users.models import Client
+from apps.workouts.models import WorkoutType
+from apps.enrollments.models import (
+    GroupEnrollment,
+    IndividualSession,
+)
+
+from .graph_builders import (
+    build_popularity_graph,
+    build_revenue_graph,
+)
 
 
-def is_superuser(user):
-    return user.is_authenticated and user.is_superuser
+def calculate_age(birth_date):
+    today = date.today()
+    return (
+        today.year
+        - birth_date.year
+        - (
+            (today.month, today.day)
+            < (birth_date.month, birth_date.day)
+        )
+    )
 
 
-@user_passes_test(is_superuser, login_url='/profile/')
 def statistics_view(request):
-    # Данные клиентов (в алфавитном порядке)
-    clients_data = [
-        {'name': 'Александр Петров', 'age': 29, 'total_paid': 1250},
-        {'name': 'Анна Соколова', 'age': 22, 'total_paid': 890},
-        {'name': 'Артем Кузнецов', 'age': 27, 'total_paid': 1500},
-        {'name': 'Денис Кравченко', 'age': 34, 'total_paid': 2100},
-        {'name': 'Екатерина Морозова', 'age': 24, 'total_paid': 950},
-        {'name': 'Мария Ковалева', 'age': 26, 'total_paid': 1100},
-        {'name': 'Максим Попов', 'age': 39, 'total_paid': 3200},
-        {'name': 'Сергей Федоров', 'age': 36, 'total_paid': 2800},
-        {'name': 'Юлия Рыбакова', 'age': 31, 'total_paid': 1700},
-        {'name': 'Владислав Тарасов', 'age': 33, 'total_paid': 1950},
-    ]
-    
-    # Сортируем по имени
-    clients_sorted = sorted(clients_data, key=lambda x: x['name'])
-    
-    # 1. Общая сумма продаж
-    total_sales = sum(c['total_paid'] for c in clients_data)
-    
-    # 2. Среднее, мода, медиана по сумме продаж
-    sales = [c['total_paid'] for c in clients_data]
-    avg_sales = round(sum(sales) / len(sales), 2)
-    
-    # Мода (самое частое значение)
-    freq = Counter(sales)
-    mode_sales = max(freq, key=lambda x: freq[x]) if freq else 0
-    
-    # Медиана
-    sorted_sales = sorted(sales)
-    n = len(sorted_sales)
-    if n % 2 == 0:
-        median_sales = (sorted_sales[n//2 - 1] + sorted_sales[n//2]) / 2
-    else:
-        median_sales = sorted_sales[n//2]
-    
-    # 3. Средний и медианный возраст клиентов
-    ages = [c['age'] for c in clients_data]
-    avg_age = round(sum(ages) / len(ages), 1)
-    
-    sorted_ages = sorted(ages)
-    if n % 2 == 0:
-        median_age = (sorted_ages[n//2 - 1] + sorted_ages[n//2]) / 2
-    else:
-        median_age = sorted_ages[n//2]
-    
-    # 4. Популярность типов тренировок
-    workout_popularity = [
-        {'name': 'Кроссфит', 'clients_count': 45},
-        {'name': 'Йога', 'clients_count': 38},
-        {'name': 'Пилатес', 'clients_count': 32},
-        {'name': 'Кардио', 'clients_count': 28},
-        {'name': 'Индивидуальные', 'clients_count': 25},
-    ]
-    
-    # Сортируем по популярности
-    most_popular = sorted(workout_popularity, key=lambda x: x['clients_count'], reverse=True)
-    
-    # 5. Прибыльность типов тренировок
-    workout_profit = [
-        {'name': 'Кроссфит', 'profit': 24500},
-        {'name': 'Йога', 'profit': 18900},
-        {'name': 'Пилатес', 'profit': 15600},
-        {'name': 'Индивидуальные', 'profit': 34200},
-        {'name': 'Кардио', 'profit': 9800},
-    ]
-    
-    most_profitable = sorted(workout_profit, key=lambda x: x['profit'], reverse=True)
-    
-    # ВЫЧИСЛЯЕМ ОБЩУЮ ПРИБЫЛЬ (вот это нужно добавить)
-    total_profit = sum(item['profit'] for item in workout_profit)
-    
-    # 6. Данные для графика по месяцам
-    monthly_revenue = [
-        {'month': 'Январь', 'amount': 12500},
-        {'month': 'Февраль', 'amount': 14800},
-        {'month': 'Март', 'amount': 16200},
-        {'month': 'Апрель', 'amount': 18900},
-        {'month': 'Май', 'amount': 21000},
-        {'month': 'Июнь', 'amount': 23500},
-    ]
-    
-    # ВЫЧИСЛЯЕМ ОБЩИЙ ДОХОД ЗА 6 МЕСЯЦЕВ (тоже можно добавить)
-    total_revenue = sum(item['amount'] for item in monthly_revenue)
-    
+    clients = []
+    ages = []
+
+    for client in Client.objects.select_related("user"):
+        age = calculate_age(client.date_of_birth)
+        ages.append(age)
+
+        group_paid = (
+            GroupEnrollment.objects
+            .filter(client=client, payment_status="paid")
+            .aggregate(total=Sum("paid_amount"))["total"]
+            or 0
+        )
+
+        session_paid = (
+            IndividualSession.objects
+            .filter(client=client, status="completed")
+            .aggregate(total=Sum("price"))["total"]
+            or 0
+        )
+
+        total_paid = group_paid + session_paid
+
+        clients.append({
+            "name": client.user.get_full_name() or client.user.username,
+            "age": age,
+            "total_paid": total_paid,
+        })
+
+    avg_age = sum(ages) / len(ages) if ages else 0
+    median_age = median(ages) if ages else 0
+
+    sales_values = [float(c["total_paid"]) for c in clients]
+    total_sales = sum(sales_values)
+    avg_sales = total_sales / len(sales_values) if sales_values else 0
+    median_sales = median(sales_values) if sales_values else 0
+
+    # Workout popularity (group only)
+    workout_popularity = []
+    for wt in WorkoutType.objects.filter(category="group"):
+        clients_count = GroupEnrollment.objects.filter(group__workout_type=wt).count()
+        workout_popularity.append({
+            "name": wt.name,
+            "clients_count": clients_count,
+        })
+    workout_popularity.sort(key=lambda x: x["clients_count"], reverse=True)
+
+    # Workout profit (group + individual)
+    workout_profit = []
+
+    for wt in WorkoutType.objects.filter(category="group"):
+        profit = (
+            GroupEnrollment.objects
+            .filter(group__workout_type=wt, payment_status="paid")
+            .aggregate(total=Sum("paid_amount"))["total"]
+            or 0
+        )
+        workout_profit.append({
+            "name": wt.name,
+            "profit": float(profit),
+        })
+
+    for wt in WorkoutType.objects.filter(category="individual"):
+        profit = (
+            IndividualSession.objects
+            .filter(workout_type=wt, status="completed")
+            .aggregate(total=Sum("price"))["total"]
+            or 0
+        )
+        workout_profit.append({
+            "name": wt.name,
+            "profit": float(profit),
+        })
+
+    workout_profit.sort(key=lambda x: x["profit"], reverse=True)
+
+    # Monthly revenue
+    monthly_revenue = []
+
+    group_months = (
+        GroupEnrollment.objects
+        .filter(payment_status="paid")
+        .annotate(month=TruncMonth("enrollment_date"))
+        .values("month")
+        .annotate(amount=Sum("paid_amount"))
+        .order_by("month")
+    )
+
+    for item in group_months:
+        monthly_revenue.append({
+            "month": item["month"].strftime("%m.%Y"),
+            "amount": float(item["amount"] or 0),
+        })
+
+    session_months = (
+        IndividualSession.objects
+        .filter(status="completed")
+        .annotate(month=TruncMonth("datetime"))
+        .values("month")
+        .annotate(amount=Sum("price"))
+        .order_by("month")
+    )
+
+    for item in session_months:
+        monthly_revenue.append({
+            "month": item["month"].strftime("%m.%Y"),
+            "amount": float(item["amount"] or 0),
+        })
+
+    monthly_revenue.sort(key=lambda x: x["month"])
+
+    # Build graphs
+    popularity_graph = build_popularity_graph(workout_popularity)
+    revenue_graph = build_revenue_graph(monthly_revenue)
+
+    total_profit = sum(item["profit"] for item in workout_profit)
+
     context = {
-        'clients': clients_sorted,
-        'total_sales': total_sales,
-        'avg_sales': avg_sales,
-        'mode_sales': mode_sales,
-        'median_sales': median_sales,
-        'avg_age': avg_age,
-        'median_age': median_age,
-        'workout_popularity': most_popular,
-        'workout_profit': most_profitable,
-        'monthly_revenue': monthly_revenue,
-        'total_profit': total_profit,      # ДОБАВИТЬ ЭТУ СТРОКУ
-        'total_revenue': total_revenue,    # ДОБАВИТЬ ЭТУ СТРОКУ (опционально)
+        "avg_age": avg_age,
+        "median_age": median_age,
+        "total_sales": total_sales,
+        "avg_sales": avg_sales,
+        "median_sales": median_sales,
+        "clients": clients,
+        "workout_popularity": workout_popularity,
+        "workout_profit": workout_profit,
+        "monthly_revenue": monthly_revenue,
+        "total_profit": total_profit,
+        "popularity_graph": popularity_graph,
+        "revenue_graph": revenue_graph,
     }
-    
-    return render(request, 'analytics/statistics.html', context)
+
+    return render(request, "analytics/statistics.html", context)

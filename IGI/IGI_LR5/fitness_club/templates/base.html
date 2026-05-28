@@ -1,147 +1,483 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
     <meta charset="utf-8">
-    <title>{% block title %}ФОРСАЖ — Фитнес-клуб{% endblock %}</title>
+
+    <title>
+        {% block title %}
+            ФОРСАЖ — Фитнес-клуб
+        {% endblock %}
+    </title>
 </head>
+
 <body>
 
-<!-- Шапка сайта -->
+<!-- ========================= -->
+<!-- ШАПКА -->
+<!-- ========================= -->
+
 <table width="100%" cellpadding="10" cellspacing="0" border="0">
+
     <tr bgcolor="#f0f0f0">
-        <td>
-            <table width="100%" cellpadding="10">
-                <tr>
-                    <td width="200"><a href="{% url 'content:home' %}"><strong>🏋️ ФОРСАЖ</strong></a></td>
-                    <td align="center">
-                        <a href="{% url 'content:home' %}">Главная</a> |
-                        <a href="{% url 'content:about' %}">О компании</a> |
-                        <a href="{% url 'content:news_list' %}">Новости</a> |
-                        <a href="{% url 'workouts:schedule' %}">Расписание</a> |
-                        <a href="{% url 'enrollments:session_list' %}">Индивидуальные</a> |
-                        <a href="{% url 'promocodes:list' %}">Промокоды</a> |
-                        <a href="{% url 'content:vacancies' %}">Вакансии</a> |
-                        <a href="{% url 'reviews:list' %}">Отзывы</a> |
-                        <a href="{% url 'content:faq' %}">Вопросы-ответы</a> |
-                        <a href="{% url 'content:contacts' %}">Контакты</a> |
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'users:profile' %}">Личный кабинет</a> |
-                            <form method="post" action="{% url 'users:logout' %}" style="display: inline;">
-                                {% csrf_token %}
-                                <input type="submit" value="Выход">
-                            </form>
-                        {% else %}
-                            <a href="{% url 'users:login' %}">Вход</a>
-                        {% endif %}
-                    </td>
-                    <td width="220" align="right" bgcolor="#e9ecef" style="border-radius: 5px;">
-                        <table cellpadding="3">
-                            <tr>
-                                <td><strong>💱 Конвертер:</strong></td>
-                                <td><small>{{ example_conversion }}</small></td>
-                            </tr>
-                            <tr>
-                                <td><form method="post" action="{% url 'users:set_currency' %}">
-                                    {% csrf_token %}
-                                    <select name="currency" onchange="this.form.submit()" style="padding: 2px;">
-                                        <option value="BYN" {% if selected_currency == 'BYN' %}selected{% endif %}>BYN (Br)</option>
-                                        <option value="USD" {% if selected_currency == 'USD' %}selected{% endif %}>USD ($)</option>
-                                        <option value="EUR" {% if selected_currency == 'EUR' %}selected{% endif %}>EUR (€)</option>
-                                    </select>
-                                    <button type="submit" style="padding: 2px 8px;">Применить</button>
-                                </form>
-                                <td>
-                            </tr>
-                        </table>
-                    </td>
-                </tr>
-            </table>
-        </tr>
-    </table>
-</td>
 
-<!-- Панель времени -->
-<table width="100%" cellpadding="8" cellspacing="0" border="0" bgcolor="#e9ecef">
-    <tr>
-        <td>
-            <table align="center" cellpadding="5">
-                <tr>
-                    <td><strong>🕐 Серверное время (Минск):</strong></td>
-                    <td id="server-time" style="font-family: monospace; font-weight: bold;">{{ server_now|date:"d.m.Y H:i:s" }}</td>
-                    <td width="30"></td>
-                    <td><strong>🌍 UTC:</strong></td>
-                    <td id="utc-time" style="font-family: monospace; font-weight: bold;">--:--:--</td>
-                </tr>
-                <tr>
-                    <td><strong>💻 Ваше локальное время:</strong></td>
-                    <td id="local-time" colspan="4" style="font-family: monospace; font-weight: bold;">--:--:--</td>
-                </tr>
-            </table>
+        <!-- ЛОГО -->
+        <td width="220">
+            <a href="{% url 'content:home' %}">
+                <strong>🏋️ ФОРСАЖ</strong>
+            </a>
         </td>
-    </tr>
-</table>
 
-<!-- Основной контент -->
-<table width="100%" cellpadding="20">
-    <tr>
-        <td>
-            {% if messages %}
-                {% for message in messages %}
-                    <p><strong>{{ message }}</strong></p>
-                {% endfor %}
-                <hr>
+        <!-- НАВИГАЦИЯ -->
+        <td align="center">
+
+            <a href="{% url 'content:home' %}">
+                Главная
+            </a> |
+
+            <a href="{% url 'content:about' %}">
+                О компании
+            </a> |
+
+            <a href="{% url 'content:news_list' %}">
+                Новости
+            </a> |
+
+            <a href="{% url 'workouts:schedule' %}">
+                Расписание
+            </a> |
+
+            <a href="{% url 'enrollments:session_list' %}">
+                Индивидуальные
+            </a> |
+
+            <a href="{% url 'content:term_list' %}">
+                Словарь
+            </a> |
+
+            <a href="{% url 'promocodes:list' %}">
+                Промокоды
+            </a> |
+
+            <a href="{% url 'content:vacancies' %}">
+                Вакансии
+            </a> |
+
+            <a href="{% url 'reviews:list' %}">
+                Отзывы
+            </a> |
+
+            <a href="{% url 'content:faq' %}">
+                Вопросы-ответы
+            </a> |
+
+            <a href="{% url 'content:contacts' %}">
+                Контакты
+            </a> |
+
+            {% if user.is_authenticated %}
+
+                <a href="{% url 'users:profile' %}">
+                    Личный кабинет
+                </a> |
+
+                <form method="post"
+                      action="{% url 'users:logout' %}"
+                      style="display:inline;">
+
+                    {% csrf_token %}
+
+                    <button type="submit">
+                        Выход
+                    </button>
+
+                </form>
+
+            {% else %}
+
+                <a href="{% url 'users:login' %}">
+                    Вход
+                </a> |
+
+                <a href="{% url 'users:register' %}">
+                    Регистрация
+                </a>
+
             {% endif %}
-            
-            {% block content %}{% endblock %}
         </td>
+
+        <!-- ВАЛЮТА -->
+        <td width="260"
+            align="right"
+            bgcolor="#e9ecef">
+
+            <table cellpadding="3">
+
+                <tr>
+                    <td>
+                        <strong>💱 Конвертер:</strong>
+                    </td>
+
+                    <td>
+                        <small>
+                            {{ example_conversion }}
+                        </small>
+                    </td>
+                </tr>
+
+                <tr>
+                    <td colspan="2">
+
+                        <form method="post"
+                              action="{% url 'users:set_currency' %}">
+
+                            {% csrf_token %}
+
+                            <select name="currency">
+
+                                <option value="BYN"
+                                    {% if selected_currency == 'BYN' %}
+                                        selected
+                                    {% endif %}>
+                                    BYN (Br)
+                                </option>
+
+                                <option value="USD"
+                                    {% if selected_currency == 'USD' %}
+                                        selected
+                                    {% endif %}>
+                                    USD ($)
+                                </option>
+
+                                <option value="EUR"
+                                    {% if selected_currency == 'EUR' %}
+                                        selected
+                                    {% endif %}>
+                                    EUR (€)
+                                </option>
+
+                            </select>
+
+                            <button type="submit">
+                                Применить
+                            </button>
+
+                        </form>
+
+                    </td>
+                </tr>
+
+            </table>
+
+        </td>
+
     </tr>
+
 </table>
 
-<!-- Подвал -->
+<!-- ========================= -->
+<!-- ИНФОРМАЦИЯ О ПОЛЬЗОВАТЕЛЕ -->
+<!-- ========================= -->
+
+{% if user.is_authenticated %}
+
+<table width="100%"
+       cellpadding="8"
+       cellspacing="0"
+       border="1"
+       bgcolor="#f8f9fa">
+
+    <tr bgcolor="#dfe6e9">
+
+        <td colspan="4">
+            <strong>
+                👤 Информация о профиле
+            </strong>
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td width="15%">
+            <strong>Логин</strong>
+        </td>
+
+        <td width="35%">
+            {{ user.username }}
+        </td>
+
+        <td width="15%">
+            <strong>Email</strong>
+        </td>
+
+        <td width="35%">
+            {{ user.email }}
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td>
+            <strong>Имя</strong>
+        </td>
+
+        <td>
+            {{ user.first_name }}
+            {{ user.last_name }}
+        </td>
+
+        {% if user.client_profile %}
+
+            <td>
+                <strong>Телефон</strong>
+            </td>
+
+            <td>
+                {{ user.client_profile.phone }}
+            </td>
+
+        {% else %}
+
+            <td></td>
+            <td></td>
+
+        {% endif %}
+
+    </tr>
+
+    {% if user.client_profile %}
+
+    <tr>
+
+        <td>
+            <strong>Дата рождения</strong>
+        </td>
+
+        <td>
+            {{ user.client_profile.date_of_birth }}
+        </td>
+
+        <td>
+            <strong>Адрес</strong>
+        </td>
+
+        <td>
+            {{ user.client_profile.address }}
+        </td>
+
+    </tr>
+
+    {% if user.client_profile.club_card %}
+
+    <tr>
+
+        <td>
+            <strong>Абонемент</strong>
+        </td>
+
+        <td>
+            {{ user.client_profile.club_card.get_card_type_display }}
+        </td>
+
+        <td>
+            <strong>Действует до</strong>
+        </td>
+
+        <td>
+            {{ user.client_profile.club_card.valid_to }}
+        </td>
+
+    </tr>
+
+    {% endif %}
+
+    {% endif %}
+
+    {% if user.instructor_profile %}
+
+    <tr bgcolor="#eeeeee">
+
+        <td colspan="4">
+            <strong>
+                🏋️ Инструктор
+            </strong>
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td>
+            <strong>Стаж</strong>
+        </td>
+
+        <td>
+            {{ user.instructor_profile.experience_years }} лет
+        </td>
+
+        <td>
+            <strong>Дата найма</strong>
+        </td>
+
+        <td>
+            {{ user.instructor_profile.hire_date }}
+        </td>
+
+    </tr>
+
+    <tr>
+
+        <td>
+            <strong>Специализация</strong>
+        </td>
+
+        <td colspan="3">
+
+            {% for spec in user.instructor_profile.specialization.all %}
+
+                {{ spec.name }}
+
+                {% if not forloop.last %}
+                    ,
+                {% endif %}
+
+            {% empty %}
+
+                Нет специализаций
+
+            {% endfor %}
+
+        </td>
+
+    </tr>
+
+    {% endif %}
+
+</table>
+
+<br>
+
+{% endif %}
+
+<!-- ========================= -->
+<!-- ВРЕМЯ -->
+<!-- ========================= -->
+
+<table width="100%"
+       cellpadding="8"
+       cellspacing="0"
+       border="0"
+       bgcolor="#e9ecef">
+
+    <tr>
+
+        <td align="center">
+
+            <strong>
+                🕐 Серверное время:
+            </strong>
+
+            <span style="font-family: monospace; font-weight: bold;">
+                {{ server_now|date:"d.m.Y H:i:s" }}
+            </span>
+
+            {% if server_timezone %}
+
+                <br><br>
+
+                <strong>
+                    🌍 Часовой пояс:
+                </strong>
+
+                {{ server_timezone }}
+
+            {% endif %}
+
+        </td>
+
+    </tr>
+
+</table>
+
+<!-- ========================= -->
+<!-- СООБЩЕНИЯ -->
+<!-- ========================= -->
+
+{% if messages %}
+
+    <table width="100%"
+           cellpadding="10"
+           cellspacing="0"
+           border="0">
+
+        <tr>
+
+            <td>
+
+                {% for message in messages %}
+
+                    <fieldset>
+
+                        <strong>
+                            {{ message }}
+                        </strong>
+
+                    </fieldset>
+
+                {% endfor %}
+
+            </td>
+
+        </tr>
+
+    </table>
+
+{% endif %}
+
+<!-- ========================= -->
+<!-- КОНТЕНТ -->
+<!-- ========================= -->
+
+<table width="100%"
+       cellpadding="20">
+
+    <tr>
+
+        <td>
+
+            {% block content %}
+            {% endblock %}
+
+        </td>
+
+    </tr>
+
+</table>
+
+<!-- ========================= -->
+<!-- ПОДВАЛ -->
+<!-- ========================= -->
+
 <hr>
+
 <center>
-    <p>© 2026 Фитнес-клуб «ФОРСАЖ» · <a href="{% url 'content:privacy' %}">Политика конфиденциальности</a></p>
+
+    <p>
+
+        © 2026 Фитнес-клуб «ФОРСАЖ»
+
+        ·
+
+        <a href="{% url 'content:privacy' %}">
+            Политика конфиденциальности
+        </a>
+
+    </p>
+
 </center>
 
-<script>
-    function updateLocalAndUTCTime() {
-        const now = new Date();
-        
-        const utcYear = now.getUTCFullYear();
-        const utcMonth = String(now.getUTCMonth() + 1).padStart(2, '0');
-        const utcDay = String(now.getUTCDate()).padStart(2, '0');
-        const utcHours = String(now.getUTCHours()).padStart(2, '0');
-        const utcMinutes = String(now.getUTCMinutes()).padStart(2, '0');
-        const utcSeconds = String(now.getUTCSeconds()).padStart(2, '0');
-        const utcString = `${utcDay}.${utcMonth}.${utcYear} ${utcHours}:${utcMinutes}:${utcSeconds}`;
-        
-        const localString = now.toLocaleString('ru-RU', {
-            year: 'numeric',
-            month: '2-digit',
-            day: '2-digit',
-            hour: '2-digit',
-            minute: '2-digit',
-            second: '2-digit'
-        });
-        
-        document.getElementById('utc-time').textContent = utcString;
-        document.getElementById('local-time').textContent = localString;
-    }
-    
-    function updateServerTime() {
-        fetch('/api/server-time/')
-            .then(response => response.json())
-            .then(data => {
-                document.getElementById('server-time').textContent = data.server_local;
-            })
-            .catch(error => console.error('Ошибка получения серверного времени:', error));
-    }
-    
-    updateLocalAndUTCTime();
-    setInterval(updateLocalAndUTCTime, 1000);
-    setInterval(updateServerTime, 10000);
-</script>
 
-{% block extra_js %}{% endblock %}
 </body>
 </html>

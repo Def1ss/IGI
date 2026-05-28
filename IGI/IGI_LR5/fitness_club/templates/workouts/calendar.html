@@ -31,19 +31,33 @@
 
 <fieldset>
     <legend><b>📋 Занятия месяца (UTC и локальное время)</b></legend>
-    {% for day, events in events_by_day.items %}
-    <p><b>День {{ day }}:</b></p>
-    <ul>
-        {% for ev in events %}
-        <li>
-            <strong>{{ ev.group.name }}</strong> — {{ ev.hall.name }}:<br>
-            🕐 {% show_datetime ev.start_time time_mode %} — {% show_datetime ev.end_time time_mode %}
-        </li>
+    {% if events_by_day %}
+
+        {% for day, events in events_by_day.items %}
+
+            <p><b>День {{ day }}:</b></p>
+
+            <ul>
+                {% for ev in events %}
+                <li>
+                    <strong>{{ ev.group.name }}</strong>
+                    — {{ ev.hall.name }}:<br>
+
+                    🕐 {% show_datetime ev.start_time time_mode %}
+                    —
+                    {% show_datetime ev.end_time time_mode %}
+                </li>
+                {% empty %}
+                <li>Нет занятий</li>
+                {% endfor %}
+            </ul>
+
         {% endfor %}
-    </ul>
-    {% if not events_by_day %}
-    <p><i>На этот месяц занятий нет.</i></p>
+
+    {% else %}
+
+        <p><i>На этот месяц занятий нет.</i></p>
+
     {% endif %}
-    {% endfor %}
 </fieldset>
 {% endblock %}
