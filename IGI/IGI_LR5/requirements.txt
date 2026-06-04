@@ -1,4 +1,9 @@
-Django>=4.2.0
-tzdata
-psycopg2-binary
+asgiref==3.11.1
+click==8.4.1
+Django==6.0.6
+gunicorn==26.0.0
+h11==0.16.0
+packaging==26.2
+sqlparse==0.5.5
+uvicorn==0.49.0
 matplotlib
