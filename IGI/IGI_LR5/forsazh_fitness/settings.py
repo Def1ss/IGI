@@ -81,10 +81,10 @@ else:
 AUTH_PASSWORD_VALIDATORS = []
 
 LANGUAGE_CODE = 'ru-ru'
-TIME_ZONE = 'Europe/Minsk'
 USE_I18N = True
 USE_TZ = True
 
+STATIC_ROOT = "/static/"
 STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
