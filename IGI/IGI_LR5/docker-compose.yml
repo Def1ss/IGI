@@ -1,0 +1,18 @@
+services:
+  web:
+    build: .
+    container_name: forsazh_web
+
+    command: sh -c "python manage.py migrate --noinput && python seed.py && python manage.py runserver 0.0.0.0:8000"
+
+    ports:
+      - "8000:8000"
+
+    volumes:
+      - .:/app
+
+    environment:
+      PYTHONUNBUFFERED: 1
+      PYTHONDONTWRITEBYTECODE: 1
+
+    restart: unless-stopped
