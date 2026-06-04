@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.decorators import login_required
@@ -16,17 +17,63 @@ def login_view(request):
         form = AuthenticationForm()
     return render(request, 'users/login.html', {'form': form})
 
+from datetime import date
+from django.contrib import messages
+
 def register_view(request):
     if request.method == "POST":
         form = UserCreationForm(request.POST)
+
+        birth_date_str = request.POST.get("birth_date")
+
+        if birth_date_str:
+            birth_date = date.fromisoformat(birth_date_str)
+
+            today = date.today()
+
+            age = (
+                today.year
+                - birth_date.year
+                - (
+                    (today.month, today.day)
+                    < (birth_date.month, birth_date.day)
+                )
+            )
+
+            if age < 18:
+                messages.error(
+                    request,
+                    "Регистрация доступна только лицам старше 18 лет."
+                )
+
+                return render(
+                    request,
+                    "users/register.html",
+                    {"form": form}
+                )
+
         if form.is_valid():
+
             user = form.save()
-            Client.objects.create(user=user, phone=request.POST.get('phone', ''))
+
+            Client.objects.create(
+                user=user,
+                phone=request.POST.get("phone", ""),
+                birth_date=birth_date
+            )
+
             login(request, user)
-            return redirect('content:home')
+
+            return redirect("content:home")
+
     else:
         form = UserCreationForm()
-    return render(request, 'users/register.html', {'form': form})
+
+    return render(
+        request,
+        "users/register.html",
+        {"form": form}
+    )
 
 def logout_view(request):
     if request.method == "POST":
@@ -41,9 +88,47 @@ def set_currency_view(request):
 
 @login_required
 def profile_view(request):
-    client = getattr(request.user, 'client', None)
-    cards = ClubCard.objects.filter(client=client) if client else []
-    return render(request, 'users/profile.html', {'client': client, 'cards': cards})
+
+    client = getattr(
+        request.user,
+        "client",
+        None
+    )
+
+    cards = (
+        ClubCard.objects.filter(client=client)
+        if client
+        else []
+    )
+
+    age = None
+
+    if client and client.birth_date:
+
+        today = datetime.date.today()
+
+        age = (
+            today.year
+            - client.birth_date.year
+            - (
+                (today.month, today.day)
+                <
+                (
+                    client.birth_date.month,
+                    client.birth_date.day
+                )
+            )
+        )
+
+    return render(
+        request,
+        "users/profile.html",
+        {
+            "client": client,
+            "cards": cards,
+            "age": age
+        }
+    )
 
 @login_required
 def buy_card(request):

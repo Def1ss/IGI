@@ -1,11 +1,37 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from datetime import date
 
 class Client(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     birth_date = models.DateField(blank=True, null=True)
     phone = models.CharField(max_length=20)
     medical_notes = models.TextField(blank=True, null=True)
+
+    def clean(self):
+
+        if self.birth_date:
+
+            today = date.today()
+
+            age = (
+                today.year
+                - self.birth_date.year
+                - (
+                    (today.month, today.day)
+                    <
+                    (
+                        self.birth_date.month,
+                        self.birth_date.day
+                    )
+                )
+            )
+
+            if age < 18:
+                raise ValidationError(
+                    "Клиент должен быть старше 18 лет."
+                )
 
     def __str__(self):
         return f"{self.user.last_name} {self.user.first_name}"

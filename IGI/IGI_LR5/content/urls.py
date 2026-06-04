@@ -16,4 +16,6 @@ urlpatterns = [
     path('dictionary/create/', views.term_create, name='term_create'),
     path('dictionary/<int:pk>/edit/', views.term_edit, name='term_edit'),
     path('dictionary/<int:pk>/delete/', views.term_delete, name='term_delete'),
+    path("statistics/", views.statistics_page, name="statistics"),
+    path("statistics/chart/", views.statistics_chart, name="statistics_chart"),
 ]

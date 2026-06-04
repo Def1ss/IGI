@@ -1,4 +1,20 @@
+from io import BytesIO
+
+import matplotlib
+matplotlib.use("Agg")
+
+import matplotlib.pyplot as plt
+
 from django.shortcuts import render, get_object_or_404, redirect
+from django.http import HttpResponse
+from django.core.paginator import Paginator
+
+from django.contrib.auth.decorators import user_passes_test
+from django.contrib.admin.views.decorators import staff_member_required
+
+from users.models import Client, Instructor
+from reviews.models import Review
+
 from .models import (
     News,
     GlossaryTerm,
@@ -7,9 +23,8 @@ from .models import (
     CompanyHistory,
     CompanyContact
 )
-from django.core.paginator import Paginator
+
 from .forms import GlossaryTermForm
-from django.contrib.auth.decorators import user_passes_test
 
 @user_passes_test(lambda u: u.is_superuser)
 def term_create(request):
@@ -115,3 +130,51 @@ def contacts_view(request):
 
 def privacy_view(request):
     return render(request, 'content/privacy.html')
+
+@staff_member_required
+def statistics_page(request):
+    return render(
+        request,
+        "content/statistics.html"
+    )
+
+
+@staff_member_required
+def statistics_chart(request):
+
+    labels = [
+        "Клиенты",
+        "Инструкторы",
+        "Отзывы",
+        "Термины"
+    ]
+
+    values = [
+        Client.objects.count(),
+        Instructor.objects.count(),
+        Review.objects.count(),
+        GlossaryTerm.objects.count()
+    ]
+
+    plt.figure(figsize=(8, 5))
+    plt.bar(labels, values)
+
+    plt.title("Статистика клуба ФОРСАЖ")
+    plt.ylabel("Количество")
+
+    buffer = BytesIO()
+
+    plt.savefig(
+        buffer,
+        format="png",
+        bbox_inches="tight"
+    )
+
+    plt.close()
+
+    buffer.seek(0)
+
+    return HttpResponse(
+        buffer.getvalue(),
+        content_type="image/png"
+    )

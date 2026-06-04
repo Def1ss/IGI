@@ -76,7 +76,15 @@
             <a href="{% url 'content:vacancies' %}">Вакансии</a> |
             <a href="{% url 'reviews:list' %}">Отзывы</a> |
             <a href="{% url 'content:faq' %}">Вопросы-ответы</a> |
-            <a href="{% url 'content:contacts' %}">Контакты</a> |
+            <a href="{% url 'content:contacts' %}">Контакты</a>
+
+            {% if user.is_superuser %}
+            |
+            <a href="{% url 'content:statistics' %}">
+                📊 Статистика
+            </a>
+            |
+            {% endif %}
 
             {% if user.is_authenticated %}
                 <a href="{% url 'users:profile' %}">Личный кабинет</a> |
